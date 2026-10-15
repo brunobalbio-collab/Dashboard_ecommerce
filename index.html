@@ -1,0 +1,1318 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><style>:root{color-scheme:light}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+
+<title>Farol das Lojas</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#f7f7f4; --surface:#fcfcfb; --ink:#161613; --ink-2:#52514e; --ink-3:#898781;
+    --hairline:#e3e2db; --grid:#e1e0d9; --baseline:#c3c2b7;
+    --accent:#1c5cab; --serie-26:#2a78d6; --serie-25:#eb6834;
+    --ok:#0ca30c; --ok-ink:#006300; --warn:#b97b00; --warn-bg:#fab219; --crit:#d03b3b;
+    --ok-wash:rgba(12,163,12,.10); --warn-wash:rgba(250,178,25,.14); --crit-wash:rgba(208,59,59,.10);
+    --card-shadow:0 1px 2px rgba(11,11,11,.04);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0d0d0d; --surface:#1a1a19; --ink:#f4f4ef; --ink-2:#c3c2b7; --ink-3:#898781;
+      --hairline:#2c2c2a; --grid:#2c2c2a; --baseline:#383835;
+      --accent:#5598e7; --serie-26:#3987e5; --serie-25:#d95926;
+      --ok:#0ca30c; --ok-ink:#3ec43e; --warn:#fab219; --warn-bg:#fab219; --crit:#e66767;
+      --ok-wash:rgba(12,163,12,.16); --warn-wash:rgba(250,178,25,.14); --crit-wash:rgba(230,103,103,.14);
+      --card-shadow:none;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0d0d0d; --surface:#1a1a19; --ink:#f4f4ef; --ink-2:#c3c2b7; --ink-3:#898781;
+    --hairline:#2c2c2a; --grid:#2c2c2a; --baseline:#383835;
+    --accent:#5598e7; --serie-26:#3987e5; --serie-25:#d95926;
+    --ok:#0ca30c; --ok-ink:#3ec43e; --warn:#fab219; --warn-bg:#fab219; --crit:#e66767;
+    --ok-wash:rgba(12,163,12,.16); --warn-wash:rgba(250,178,25,.14); --crit-wash:rgba(230,103,103,.14);
+    --card-shadow:none;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    margin:0; line-height:1.5; font-size:15px;}
+  .wrap{max-width:1080px; margin:0 auto; padding:28px 20px 64px;}
+  h1,h2,h3{font-family:"Archivo","IBM Plex Sans",system-ui,sans-serif; text-wrap:balance; margin:0;}
+  h1{font-size:30px; font-weight:700; letter-spacing:-.01em;}
+  h2{font-size:19px; font-weight:600; margin-bottom:4px;}
+  .eyebrow{font-size:11.5px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3);}
+  .sub{color:var(--ink-2); font-size:14px;}
+  section{margin-top:36px;}
+  .sec-head{margin-bottom:14px;}
+  .card{background:var(--surface); border:1px solid var(--hairline); border-radius:10px; box-shadow:var(--card-shadow);}
+  .num{font-variant-numeric:tabular-nums;}
+
+  /* header */
+  header.top{display:flex; flex-wrap:wrap; gap:16px 24px; align-items:flex-end; justify-content:space-between;
+    border-bottom:2px solid var(--ink); padding-bottom:18px;}
+  .status-chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{display:inline-flex; align-items:center; gap:7px; padding:6px 12px; border-radius:999px;
+    font-size:13px; font-weight:600; border:1px solid var(--hairline);}
+  .chip .dot{width:10px; height:10px; border-radius:50%; flex:none;}
+  .chip.ok{background:var(--ok-wash); color:var(--ok-ink);} .chip.ok .dot{background:var(--ok);}
+  .chip.warn{background:var(--warn-wash); color:var(--warn);} .chip.warn .dot{background:var(--warn-bg);}
+  .chip.crit{background:var(--crit-wash); color:var(--crit);} .chip.crit .dot{background:var(--crit);}
+
+  /* KPI tiles */
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin-top:20px;}
+  .tile{padding:16px 18px;}
+  .tile .label{font-size:12.5px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-3);}
+  .tile .value{font-family:"Archivo",sans-serif; font-size:27px; font-weight:600; margin-top:2px; letter-spacing:-.01em;}
+  .tile .delta{font-size:13px; color:var(--ink-2); margin-top:2px;}
+  .tile .delta .up{color:var(--ok-ink); font-weight:600;}
+  .tile .delta .down{color:var(--crit); font-weight:600;}
+
+  /* farol matrix */
+  .scroll{overflow-x:auto;}
+  table.farol{border-collapse:collapse; width:100%; min-width:760px; font-size:13.5px;}
+  table.farol th{text-align:right; font-weight:600; font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+    color:var(--ink-3); padding:8px 12px; border-bottom:1px solid var(--baseline); white-space:nowrap;}
+  table.farol th:first-child{text-align:left;}
+  table.farol td{padding:9px 12px; border-bottom:1px solid var(--grid); text-align:right; white-space:nowrap;}
+  table.farol td:first-child{text-align:left; font-weight:600;}
+  table.farol tr:last-child td{border-bottom:none;}
+  table.farol tr.future td{color:var(--ink-3);}
+  .cell{display:inline-flex; align-items:center; gap:7px; justify-content:flex-end;}
+  .semaforo{width:9px; height:9px; border-radius:50%; flex:none;}
+  .semaforo.ok{background:var(--ok);} .semaforo.warn{background:var(--warn-bg);} .semaforo.crit{background:var(--crit);}
+  .semaforo.off{background:transparent; border:1.5px solid var(--baseline);}
+  tr.total-row td{border-top:2px solid var(--baseline); font-weight:600;}
+
+  /* MEI bars */
+  .mei-item{padding:14px 18px 16px; border-bottom:1px solid var(--grid);}
+  .mei-item:last-child{border-bottom:none;}
+  .mei-line{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+  .mei-name{font-weight:600;}
+  .mei-track{position:relative; height:14px; background:var(--grid); border-radius:7px; margin-top:9px; overflow:visible;}
+  .mei-fill{position:absolute; inset:0 auto 0 0; border-radius:7px;}
+  .mei-fill.ok{background:var(--ok);} .mei-fill.warn{background:var(--warn-bg);} .mei-fill.crit{background:var(--crit);}
+  .mei-mark{position:absolute; top:-4px; bottom:-4px; width:2px; background:var(--ink-3);}
+  .mei-mark.hard{background:var(--crit);}
+  .mei-legend{display:flex; gap:16px; font-size:12px; color:var(--ink-3); margin-top:7px; flex-wrap:wrap;}
+  .mei-note{font-size:13px; color:var(--ink-2); margin-top:8px;}
+  .tag{display:inline-block; font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase;
+    padding:2px 8px; border-radius:4px; border:1px solid var(--hairline); color:var(--ink-3);}
+
+  /* charts */
+  .chart-card{padding:18px 18px 10px;}
+  .chart-title{font-weight:600; font-size:14.5px;}
+  .chart-sub{font-size:12.5px; color:var(--ink-3); margin-bottom:8px;}
+  .legend{display:flex; gap:16px; font-size:12.5px; color:var(--ink-2); margin:6px 0 4px; flex-wrap:wrap;}
+  .legend .sw{display:inline-block; width:11px; height:11px; border-radius:3px; margin-right:6px; vertical-align:-1px;}
+  svg{display:block; width:100%; height:auto;}
+  .tip{position:fixed; pointer-events:none; background:var(--ink); color:var(--bg); font-size:12.5px;
+    padding:6px 10px; border-radius:6px; opacity:0; transition:opacity .12s; z-index:10; white-space:nowrap;}
+  .tip b{font-variant-numeric:tabular-nums;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:820px){.grid2{grid-template-columns:1fr;}}
+
+  /* share bars */
+  .share-row{display:grid; grid-template-columns:110px 1fr 150px; gap:10px; align-items:center; padding:7px 0; font-size:13.5px;}
+  .share-row .bar{height:16px; border-radius:4px; background:var(--serie-26); min-width:2px;}
+  .share-row .val{text-align:right; color:var(--ink-2);}
+
+  /* rules + notes */
+  .rules{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px;}
+  .rule{padding:14px 16px;}
+  .rule h3{font-size:14px; font-weight:600; margin-bottom:6px;}
+  .rule ul{margin:0; padding-left:0; list-style:none; font-size:13.5px; color:var(--ink-2);}
+  .rule li{display:flex; align-items:center; gap:8px; padding:3px 0;}
+  .notes{padding:16px 18px; border-left:3px solid var(--warn-bg);}
+  .notes ol{margin:8px 0 0; padding-left:20px; font-size:14px; color:var(--ink-2);}
+  .notes li{margin-bottom:8px;}
+  .notes li:last-child{margin-bottom:0;}
+  footer{margin-top:44px; border-top:1px solid var(--hairline); padding-top:16px; font-size:13px; color:var(--ink-3);}
+
+  /* tabs */
+  .tabs{display:flex; gap:4px; margin-top:18px; border-bottom:1px solid var(--hairline);}
+  .tab{appearance:none; background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-1px;
+    font:inherit; font-weight:600; font-size:14.5px; color:var(--ink-3); padding:9px 14px; cursor:pointer;}
+  .tab:hover{color:var(--ink-2);}
+  .tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--accent);}
+  .tab:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:4px;}
+
+  /* por loja */
+  table.farol td .spark{vertical-align:middle;}
+  #tab-lojas-tabela{min-width:960px; font-size:13px;}
+  #tab-lojas-tabela td, #tab-lojas-tabela th{padding:8px 9px;}
+  .lojas-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:14px; margin-top:14px;}
+  .loja-card{padding:16px 18px;}
+  .loja-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .loja-nome{font-family:"Archivo",sans-serif; font-weight:600; font-size:16.5px;}
+  .loja-share{font-size:12.5px; color:var(--ink-3);}
+  .loja-total{font-family:"Archivo",sans-serif; font-size:22px; font-weight:600; margin-top:2px;}
+  .loja-var{font-size:13px; color:var(--ink-2); margin-bottom:8px;}
+  .loja-var .up{color:var(--ok-ink); font-weight:600;} .loja-var .down{color:var(--crit); font-weight:600;}
+  .mkt-row{display:grid; grid-template-columns:96px 1fr 118px; gap:8px; align-items:center; padding:4px 0; font-size:12.5px;}
+  .mkt-row .bar{height:11px; border-radius:3px; background:var(--serie-26); min-width:2px;}
+  .mkt-row .val{text-align:right; color:var(--ink-2);}
+  @media (prefers-reduced-motion: reduce){ .tip{transition:none;} }
+
+  /* ===== Atualizar GitHub ===== */
+  .head-right{display:flex; flex-wrap:wrap; align-items:center; justify-content:flex-end; gap:8px; margin-left:auto;}
+  @media (max-width:640px){ .head-right{justify-content:flex-start; margin-left:0;} }
+  .gh-btn svg{display:inline-block; width:15px; height:15px; flex:none;}
+  .gh-btn{display:inline-flex; align-items:center; gap:7px; font:inherit; font-size:13px; font-weight:600;
+    padding:7px 13px; border-radius:8px; border:1px solid var(--baseline); background:var(--surface); color:var(--ink); cursor:pointer;}
+  .gh-btn:hover{border-color:var(--ink-3);}
+  .gh-btn:focus-visible, .gh-dlg button:focus-visible, .gh-dlg input:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+  .gh-dlg{border:1px solid var(--hairline); border-radius:12px; padding:0; width:min(560px, calc(100vw - 32px)); max-height:calc(100vh - 32px); overflow:auto;
+    background:var(--surface); color:var(--ink); box-shadow:0 12px 40px rgba(0,0,0,.25);}
+  .gh-dlg::backdrop{background:rgba(0,0,0,.45);}
+  .gh-dlg[open]:not([data-modal]){position:fixed; top:40px; left:50%; transform:translateX(-50%); z-index:50;}
+  .gh-in{padding:20px 22px 18px;}
+  .gh-in h3{font-size:18px; margin-bottom:4px;}
+  .gh-step{font-size:11.5px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--ink-3); margin:16px 0 8px;}
+  .gh-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  @media (max-width:520px){ .gh-grid{grid-template-columns:1fr;} }
+  .gh-f label{display:block; font-size:12.5px; font-weight:600; color:var(--ink-2); margin-bottom:3px;}
+  .gh-f input[type=text], .gh-f input[type=password]{width:100%; font:inherit; font-size:14px; padding:7px 9px; border-radius:7px;
+    border:1px solid var(--baseline); background:var(--bg); color:var(--ink);}
+  .gh-f .hint{font-size:11.5px; color:var(--ink-3); margin-top:3px;}
+  .gh-chk{display:flex; gap:7px; align-items:flex-start; font-size:12.5px; color:var(--ink-2); margin-top:8px;}
+  .gh-drop{display:block; border:1.5px dashed var(--baseline); border-radius:9px; padding:16px; text-align:center; cursor:pointer;
+    font-size:13.5px; color:var(--ink-2); background:var(--bg);}
+  .gh-drop.over{border-color:var(--accent); color:var(--ink);}
+  .gh-drop input{display:none;}
+  .gh-actions{display:flex; gap:8px; justify-content:flex-end; flex-wrap:wrap; margin-top:18px;}
+  .gh-actions button{font:inherit; font-size:13.5px; font-weight:600; padding:8px 14px; border-radius:8px; cursor:pointer;
+    border:1px solid var(--baseline); background:var(--surface); color:var(--ink);}
+  .gh-actions button.primary{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .gh-actions button:disabled{opacity:.45; cursor:not-allowed;}
+  .gh-msg{margin-top:14px; font-size:13px; padding:10px 12px; border-radius:8px; display:none; line-height:1.45;}
+  .gh-msg.ok{display:block; background:var(--ok-wash); color:var(--ok-ink);}
+  .gh-msg.err{display:block; background:var(--crit-wash); color:var(--crit);}
+  .gh-msg.info{display:block; background:var(--warn-wash); color:var(--ink-2);}
+  .gh-msg a{color:inherit; font-weight:600;}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Farol financeiro · e-commerce</div>
+      <h1>Farol das Lojas</h1>
+      <div class="sub" id="header-sub"></div>
+    </div>
+    <div class="head-right">
+      <div class="status-chips" id="chips"></div>
+      <button type="button" class="gh-btn" id="gh-open" title="Enviar um novo index.html para o repositório do GitHub">
+        <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Atualizar GitHub
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Visões do farol">
+    <button class="tab" role="tab" id="tab-geral" aria-selected="true" aria-controls="view-geral">Visão geral</button>
+    <button class="tab" role="tab" id="tab-lojas" aria-selected="false" aria-controls="view-lojas">Por loja</button>
+    <button class="tab" role="tab" id="tab-ads" aria-selected="false" aria-controls="view-ads">ADS</button>
+    <button class="tab" role="tab" id="tab-afiliados" aria-selected="false" aria-controls="view-afiliados">Afiliados</button>
+    <button class="tab" role="tab" id="tab-real" aria-selected="false" aria-controls="view-real">DRE</button>
+  </nav>
+
+  <div id="view-geral" role="tabpanel" aria-labelledby="tab-geral">
+  <div class="tiles" id="tiles"></div>
+
+  <section>
+    <div class="sec-head">
+      <h2>Farol mês a mês — 2026</h2>
+      <div class="sub">Cada indicador com seu semáforo. Meses ainda não fechados aparecem apagados — sem números inventados.</div>
+    </div>
+    <div class="card scroll"><table class="farol" id="matriz"></table></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Limite MEI por CNPJ</h2>
+      <div class="sub">Faturamento acumulado no ano contra o teto de R$ 81.000 (tolerância de 20% até R$ 97.200; acima disso, desenquadramento retroativo).</div>
+    </div>
+    <div class="card" id="mei"></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>2026 contra 2025</h2>
+      <div class="sub" id="comp-sub"></div>
+    </div>
+    <div class="card chart-card">
+      <div class="legend">
+        <span><span class="sw" style="background:var(--serie-26)"></span>2026</span>
+        <span><span class="sw" style="background:var(--serie-25)"></span>2025</span>
+      </div>
+      <div id="chart-anos"></div>
+    </div>
+    <div class="grid2" style="margin-top:14px;">
+      <div class="card chart-card">
+        <div class="chart-title">Margem de lucro por mês</div>
+        <div class="chart-sub">Linhas de referência: 10% (mínimo verde) e 8% (piso do amarelo)</div>
+        <div id="chart-margem"></div>
+      </div>
+      <div class="card chart-card">
+        <div class="chart-title">Share por marketplace — 2026</div>
+        <div class="chart-sub">Faturamento acumulado janeiro–setembro</div>
+        <div id="share" style="padding:4px 0 10px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Custo mensal (fluxo de caixa) vs. Faturamento</h2>
+      <div class="sub">"Total Gasto Mês" da sua planilha de Fluxo de Caixa, contra o faturamento do farol — a seu pedido em 01/09. <b>Atenção ao critério:</b> é o total pago no mês em caixa (inclui fatura do cartão — que paga compras de meses anteriores — parcelamentos de DAS e compras de estoque pontuais como as R$ 12,5 mil de Real Nutre + Sandálias em agosto), não é custo por regime de competência. Por isso oscila mais que uma "margem" de verdade — mas mostra bem a tendência.</div>
+    </div>
+    <div class="card scroll"><table class="farol" id="custo-fat"></table></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Regras do farol</h2>
+      <div class="sub">Proposta inicial baseada nos seus dados e nas regras que já estavam na planilha — ajustamos os números quando você quiser.</div>
+    </div>
+    <div class="rules" id="rules"></div>
+  </section>
+
+  </div><!-- /view-geral -->
+
+  <div id="view-lojas" role="tabpanel" aria-labelledby="tab-lojas" hidden>
+    <section style="margin-top:24px;">
+      <div class="sec-head">
+        <h2>Faturamento por loja — 2026</h2>
+        <div class="sub">Cada loja somando todos os marketplaces em que vende. Valores mensais em R$. A coluna Tendência mostra a evolução de janeiro a setembro. <b>Setembro por loja é provisório:</b> o relatório Vendas_loja_performance não veio, então rateei o total válido (R$ 217.870,05) pela participação de cada loja no Vendas_por_Produtos (diferença de 1,2% entre os dois relatórios).</div>
+      </div>
+      <div class="card scroll"><table class="farol" id="tab-lojas-tabela"></table></div>
+      <div class="lojas-grid" id="lojas-cards"></div>
+    </section>
+  </div>
+
+  <div id="view-ads" role="tabpanel" aria-labelledby="tab-ads" hidden>
+    <section style="margin-top:24px;">
+      <div class="sec-head">
+        <h2>ADS por loja — Setembro/2026</h2>
+        <div class="sub">Gasto de anúncios de cada loja contra o próprio faturamento, para ver qual loja está "ofensora" no ADS%. Abertura por loja disponível desde agosto — meses anteriores só têm o ADS consolidado. Shopee = recargas pagas no mês (+ recarga automática, se houver); Mercado Livre, Amazon e TikTok = valores informados por você.</div>
+      </div>
+      <div class="card scroll"><table class="farol" id="tab-ads-tabela"></table></div>
+      <div class="card chart-card" style="margin-top:14px;">
+        <div class="chart-title">ADS % por loja vs. limites do farol</div>
+        <div class="chart-sub">Linha verde = 5% (meta) · linha vermelha = 6% (teto)</div>
+        <div id="chart-ads-lojas"></div>
+      </div>
+    </section>
+
+    <section style="margin-top:28px;">
+      <div class="sec-head">
+        <h2>ADS por loja × canal — Setembro/2026</h2>
+        <div class="sub">Mesmo total de cada loja, agora aberto por canal (Shopee, Mercado Livre, Amazon, TikTok), com faturamento e ADS% ao lado para ver de onde vem o gasto e em qual loja o ADS está estourando a meta de 5% (linha colorida = mesmo farol da aba acima).</div>
+      </div>
+      <div class="card scroll"><table class="farol" id="tab-ads-canal-tabela"></table></div>
+    </section>
+  </div>
+
+  <div id="view-afiliados" role="tabpanel" aria-labelledby="tab-afiliados" hidden>
+    <section style="margin-top:24px;">
+      <div class="sec-head">
+        <h2>Afiliados consolidado — Setembro/2026</h2>
+        <div class="sub">Soma das 3 lojas com Central de Afiliados (Smith, Ranum e RFF). Zelia e Flavia ainda não têm esse relatório — não entram na soma.</div>
+      </div>
+      <div class="tiles" id="af-consolidado-tiles"></div>
+      <div class="card scroll" style="margin-top:14px;"><table class="farol" id="af-consolidado-top"></table></div>
+      <div class="card chart-card" style="margin-top:14px;">
+        <div class="chart-title">Canais de vendas acumulados (3 lojas)</div>
+        <div class="chart-sub">De onde vêm os pedidos que os afiliados geram, somando Smith + Ranum + RFF.</div>
+        <div id="af-canais-consolidado" style="padding:4px 0 10px;"></div>
+      </div>
+    </section>
+
+    <section style="margin-top:28px;">
+      <div class="sec-head">
+        <h2>Vendas por afiliados — Setembro/2026</h2>
+        <div class="sub">Central de Afiliados da Shopee (Portal de Marketing) · agora com <b>3 lojas</b> — Smith, Ranum e RFF (Zelia e Flavia ainda não enviaram o relatório dessa central). Variação mostrada é a do próprio painel da Shopee, "vs. últimos 30 dias". <b>Em setembro só vieram os prints</b> (sem os CSVs AMSAffiliatePerformance) — por isso o valor de vendas de cada loja é o arredondado do painel (ex.: R$ 20,7 mil).</div>
+      </div>
+      <div id="af-lojas"></div>
+    </section>
+
+    <section style="margin-top:28px;">
+      <div class="sec-head">
+        <h2>Canais mais usados pelos afiliados</h2>
+        <div class="sub">De onde vêm os pedidos que os afiliados geram — Instagram, Facebook, YouTube, vídeos/lives da Shopee ou "Outros" (majoritariamente links diretos fora do app). Mesmo painel acima, setembro/2026.</div>
+      </div>
+      <div class="lojas-grid" id="af-canais"></div>
+    </section>
+
+    <section style="margin-top:28px;">
+      <div class="sec-head">
+        <h2>Atribuição por fonte de tráfego — Julho/2026 (Ranum)</h2>
+        <div class="sub">Único dado histórico que temos até agora; critério de atribuição mais estrito que a Central de Afiliados (mantido aqui como referência).</div>
+      </div>
+      <div class="grid2">
+        <div class="card chart-card">
+          <div class="chart-title">Vendas pagas da Ranum Shopee em julho, por origem</div>
+          <div id="af-fontes" style="padding:4px 0 10px;"></div>
+        </div>
+        <div class="card notes" style="border-left-color:var(--warn-bg);">
+          <b>Aviso de atribuição — leia antes de comparar os números:</b>
+          <ol>
+            <li>A <b>Central de Afiliados</b> (cards acima) atribui vendas ao programa por pedido confirmado influenciado pelo programa — critério mais amplo.</li>
+            <li>O <b>relatório de fontes de tráfego</b> (só Ranum, julho) atribuiu <b>R$ 3.314</b> a afiliados (5,4% das vendas pagas) — critério mais estrito, só clique direto no link do afiliado.</li>
+            <li>A <b>comissão paga</b> é o único custo real do canal — em julho (Ranum) equivalia a 1,8% das vendas atribuídas: afiliados costumam ser um canal barato.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="view-real" role="tabpanel" aria-labelledby="tab-real" hidden>
+    <section style="margin-top:24px;">
+      <div class="sec-head">
+        <h2>DRE — construção em andamento</h2>
+        <div class="sub">Substituindo a estimativa (15% do faturamento + R$ 0,50/item) por custo verdadeiro. Cada linha mostra a origem do dado e se já está confirmada.</div>
+      </div>
+      <div class="card scroll"><table class="farol" id="dre"></table></div>
+      <div class="grid2" style="margin-top:14px;">
+        <div class="card notes" style="border-left-color:var(--crit);">
+          <b>O que falta para fechar o lucro real</b>
+          <ol id="falta"></ol>
+        </div>
+        <div class="card rule">
+          <h3>Premissas adotadas</h3>
+          <ul id="premissas"></ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+<div class="tip" id="tip"></div>
+
+<dialog class="gh-dlg" id="gh-dlg" aria-labelledby="gh-title">
+  <form method="dialog" class="gh-in" id="gh-form" onsubmit="return false">
+    <h3 id="gh-title">Atualizar o Farol no GitHub</h3>
+    <div class="sub" style="font-size:13px">Envia um novo <b>index.html</b> para o repositório. O GitHub Pages republica o site em 1–2 minutos, no mesmo endereço.</div>
+
+    <div class="gh-step">1 · Repositório</div>
+    <div class="gh-grid">
+      <div class="gh-f"><label for="gh-owner">Usuário ou organização</label><input type="text" id="gh-owner" autocomplete="off" spellcheck="false" placeholder="ex.: brunobalbio"></div>
+      <div class="gh-f"><label for="gh-repo">Repositório</label><input type="text" id="gh-repo" autocomplete="off" spellcheck="false" placeholder="ex.: farol-lojas"></div>
+      <div class="gh-f"><label for="gh-branch">Branch</label><input type="text" id="gh-branch" autocomplete="off" spellcheck="false" value="main"></div>
+      <div class="gh-f"><label for="gh-path">Arquivo no repositório</label><input type="text" id="gh-path" autocomplete="off" spellcheck="false" value="index.html"></div>
+    </div>
+    <div class="gh-f" style="margin-top:10px"><label for="gh-token">Token do GitHub (fine-grained, só "Contents: Read and write" neste repositório)</label>
+      <input type="password" id="gh-token" autocomplete="off" spellcheck="false" placeholder="github_pat_…">
+      <div class="hint">O token não fica gravado no arquivo nem vai para o repositório. Ele vai só do seu navegador direto para api.github.com.</div>
+      <label class="gh-chk"><input type="checkbox" id="gh-remember"> Lembrar o token neste navegador (só marque no seu computador pessoal)</label>
+    </div>
+
+    <div class="gh-step">2 · Novo arquivo do mês</div>
+    <label class="gh-drop" id="gh-drop"><input type="file" id="gh-file" accept=".html,.htm,text/html">
+      <span id="gh-file-lbl">Clique para escolher o <b>index.html</b> do mês (ou arraste aqui)</span></label>
+
+    <div class="gh-msg" id="gh-msg" role="status" aria-live="polite"></div>
+
+    <div class="gh-actions">
+      <button type="button" id="gh-test">Testar conexão</button>
+      <button type="button" id="gh-close">Fechar</button>
+      <button type="button" class="primary" id="gh-send" disabled>Enviar para o GitHub</button>
+    </div>
+  </form>
+</dialog>
+<script>
+/* ================= DADOS (fechamento Setembro/2026 — fonte: planilhas avulsas do mês) ================= */
+const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const MESES_AB = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// [total, qtd produtos, ads, prejuízo/erros, cancelamentos, devoluções, Leo+Arthur+Flávia, lucro]
+// Agosto: qtd = Pedidos Válidos (5.747, Vendas_loja_performance) — critério em uso desde a 1ª rodada de 01/09 (escolhido pelo Bruno via pergunta direta). Na mesma tarde eu tinha trocado por engano para Unidades Vendidas (6.165, Vendas_por_Produtos), interpretando errado o comentário do Bruno sobre o "critério de rateio" da planilha de precificação — ele se referia só à META de 6.000/mês (ver REGRAS.qtd abaixo), não ao critério de contagem em si. O Bruno corrigiu em 01/09 à noite ("Nos não vendemos 6.165 itens... foram 5.747"): revertido para Pedidos Válidos. Meses jan–jul continuam num critério antigo, ainda diferente deste — a série de Qtd itens não é homogênea mês a mês.
+// Agosto: ads = R$ 12.333,87 — CRITÉRIO FINAL em 01/09 (3ª correção do dia): o ADS do Shopee é a soma das RECARGAS PAGAS
+// feitas dentro do mês (não mais "Deduction for Product Ad", regime de competência). Bruno conferiu manualmente a
+// Ranum (R$2.760,00) e pediu a correção; apliquei a mesma regra a Smith e RFF: Smith Shopee R$3.855,00 · Ranum Shopee
+// R$2.760,00 (confirmado). Para a RFF, o Bruno pediu para INCLUIR também a "Recarga Automática (Comissão)" (R$562,87,
+// 82 linhas pequenas em agosto) como gasto real — ele NÃO quer nenhuma recarga automática ativa (vai desativar na
+// loja) e pediu para ser avisado sempre que aparecer esse tipo de lançamento em qualquer loja. RFF Shopee final =
+// R$1.900,00 (recargas manuais) + R$562,87 (recarga automática) = R$2.462,87. Totais por loja: Smith R$5.157,00 ·
+// Ranum R$4.199,00 · RFF R$2.977,87 (Shopee R$2.462,87 + TikTok R$515,00) · Zelia R$0 · Flavia R$0.
+// Agosto: prejuízo = 900 (informado por você, sem arquivo de controle este mês). Cancelamentos = R$ 10.054,26 (215 pedidos) — primeiro mês com cobertura completa de todas as lojas/plataformas.
+// Agosto: devoluções = R$ 2.564,15 — parcial, só Shopee de Smith/Ranum/RFF (faltam Zelia, Flavia e demais canais; ainda assim usado no cálculo, mesma prática de meses anteriores).
+// Agosto: lucro = 15%×fat + R$0,50×qtd − ads − devoluções − prejuízo = R$ 25.191,89, com qtd=5.747 e ads=12.333,87.
+// Agosto: "Leo+Arthur+Flávia" — folha R$ 12.476,74 (Subtotal completo de "SALÁRIOS E ENCARGOS", confirmado por você em 01/09) × qtd=5.747 = −R$2.419,49 (não muda com o ADS).
+const D2026 = [
+ [148295.96, 4357,  6226.47,  600, 143,  348,  -173.34, 17248.42],
+ [151457.58, 4415,  6458.96,  950, 145,  564,   -71.84, 16953.18],
+ [189213.68, 4805,  7248.89, 1100, 161, 1080,   610.66, 21355.66],
+ [196322.26, 4948,  8804.99,  800, 170,  660,   860.91, 21657.35],
+ [215881.03, 5575,  9000.00,  900, 180,  750,   258.16, 24519.65],
+ [256304.35, 6626, 17259.00,  900,   0,    0,  2097.41, 23599.65],
+ [265812.88, 6749, 14840.00,  950,   0,    0,  2312.66, 27456.43],
+ [254109.43, 5747, 12333.87,  900, 10054.26, 2564.15, -2419.49, 25191.89],
+ [217870.05, 4313, 12818.58,    0,  9242.55,    0,    -4928.99, 22018.43],
+];
+// Setembro (fechamento 02/10/2026 — 1ª rodada): fat/qtd/cancelamentos = Performance_das_Vendas (soma diária: R$217.870,05 válidas,
+// 4.313 Pedidos Válidos, 165 cancelados = R$9.242,55). ADS = R$12.818,58 (Shopee = recarga paga no mês + Recarga Automática da RFF
+// de R$15,58; Meli/Amazon/TikTok informados pelo Bruno por texto). PROVISÓRIO: devoluções e prejuízo/erros ainda não enviados —
+// entram como 0, então lucro/margem de setembro estão SUPERESTIMADOS até chegar esse dado.
+// Leo+Arthur+Flávia = 4.313 × R$1,75 − R$12.476,74 = −R$4.928,99.
+const PROVISORIO = { 8: 'faltam devoluções e prejuízo/erros de setembro' }; // índice do mês → motivo
+const T2025 = [22197.14,17748.31,25409.92,29245.68,29824.91,45638.79,75368.98,50962.26,57412.15,84209.24,111126.31,94280.38];
+const DEZ_2025 = 94280.38; // meta do Jan/2026 = mês anterior
+
+// Acumulado jan–set por marketplace (soma de todas as contas em cada marketplace)
+const SHARE_MKT = [
+ ['Shopee', 1443588.83], ['Mercado Livre', 180019.48], ['TikTok', 103819.00],
+ ['Amazon', 88388.93], ['SHEIN', 72775.66], ['Outros', 6675.32],
+];
+// Acumulado jan–set por conta (soma de todas as colunas da conta em todos os marketplaces)
+const CONTAS_MEI = [ // contas acompanhadas contra o teto MEI na sua planilha
+ {nome:'Flavia (+Amora)', acum:49302.72, obs:'inclui a conta "Amora" (Mercado Livre e, em setembro, Shopee) — mesma loja, confirmado pelo Bruno em 21/08'},
+ {nome:'Zelia (Dandora)', acum:61789.50, obsAlerta:true, obs:'inclui a SHEIN (Dandora) — confirme se é o mesmo CNPJ (aviso já sinalizado em julho)'},
+];
+const CONTAS_OUTRAS = [ ['Smith',800004.25], ['Ranum',612295.59], ['RFF',366516.60] ];
+
+/* ================= REGRAS DO FAROL (edite aqui para mudar os limiares) ================= */
+const REGRAS = {
+  ads:    { verde: 5.0, amarelo: 6.0 },          // % do faturamento (sua regra "MÁXIMO 5%")
+  margem: { verde: 10.0, amarelo: 8.0 },         // % de lucro sobre faturamento (regra citada na aba Comissão)
+  meta:   { tipo: 'mês anterior', tolerancia: 0.15 }, // verde ≥ mês anterior; amarelo até 15% abaixo
+  mei:    { teto: 81000, tolerancia: 97200, atencao: 0.70 },
+  qtd:    { meta: 6000, tolerancia: 0.15 },      // meta de itens/mês para a fórmula de rateio — origem: Premissas B7 da planilha de precificação (confirmado pelo Bruno em 24/08); comparada contra "Qtd itens" = Pedidos Válidos (não unidades)
+};
+
+/* ================= util ================= */
+const fmtR$ = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(v);
+const fmtR$c = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',minimumFractionDigits:2}).format(v);
+const fmtPct = v => v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + '%';
+const S = {ok:'ok', warn:'warn', crit:'crit', off:'off'};
+const farolAds = p => !Number.isFinite(p) ? S.off : (p<=REGRAS.ads.verde ? S.ok : (p<=REGRAS.ads.amarelo ? S.warn : S.crit));
+const farolMargem = p => !Number.isFinite(p) ? S.off : (p>=REGRAS.margem.verde ? S.ok : (p>=REGRAS.margem.amarelo ? S.warn : S.crit));
+const farolMeta = (v, meta) => v>=meta ? S.ok : (v>=meta*(1-REGRAS.meta.tolerancia) ? S.warn : S.crit);
+const farolQtd = q => q>=REGRAS.qtd.meta ? S.ok : (q>=REGRAS.qtd.meta*(1-REGRAS.qtd.tolerancia) ? S.warn : S.crit);
+const NOME_S = {ok:'Verde', warn:'Amarelo', crit:'Vermelho'};
+
+// linhas derivadas
+const rows = D2026.map((d,i)=>{
+  const [total,qtd,ads,prej,canc,dev,sal,lucro]=d;
+  const meta = i===0 ? DEZ_2025 : D2026[i-1][0];
+  return { mes:MESES[i], ab:MESES_AB[i], total, qtd, ads, adsPct: ads/total*100, prej, canc, dev, sal,
+    lucro, margem: lucro/total*100, meta,
+    fFat: farolMeta(total, meta), fAds: farolAds(ads/total*100), fMar: farolMargem(lucro/total*100), fQtd: farolQtd(qtd) };
+});
+const ult = rows[rows.length-1];
+const ultFechado = [...rows].reverse().find(r=>Number.isFinite(r.lucro)); // último mês com ADS/lucro apurados (hoje: Julho)
+const tot = k => rows.reduce((a,r)=>a+r[k],0);
+const totIf = (k, guard) => rows.reduce((a,r)=> a + (Number.isFinite(r[guard??k]) ? r[k] : 0), 0);
+const fmtPctSafe = v => Number.isFinite(v) ? fmtPct(v) : 'aguardando';
+const total26 = tot('total'); // jan–ago, sempre conhecido (faturamento nunca fica pendente)
+const lucro26 = totIf('lucro'); // soma só dos meses com lucro apurado (hoje: jan–ago, todos fechados)
+const ads26 = totIf('ads'); // soma só dos meses com ADS apurado (hoje: jan–ago, todos fechados)
+const totalComLucro = totIf('total','lucro'); // faturamento dos meses com lucro apurado, para a margem % ficar coerente
+const totalComAds = totIf('total','ads'); // faturamento dos meses com ADS apurado, para o ADS % ficar coerente
+const total25 = T2025.reduce((a,b)=>a+b,0);
+const total25JanJul = T2025.slice(0,7).reduce((a,b)=>a+b,0);
+
+/* ================= header, chips, tiles ================= */
+document.getElementById('header-sub').innerHTML =
+  `Fechamento de ${ult.mes} de 2026 · ${rows.length} meses fechados · atualizado em 02/10/2026${PROVISORIO[rows.length-1] ? ' · <b>'+ult.mes+' provisório</b> ('+PROVISORIO[rows.length-1]+')' : ''}`;
+
+const chips = [
+  {s:ult.fFat, t:`Faturamento ${NOME_S[ult.fFat].toLowerCase()}`},
+  {s:ult.fAds, t: Number.isFinite(ult.adsPct) ? `ADS ${fmtPct(ult.adsPct)}` : 'ADS aguardando dados'},
+  {s:ult.fMar, t: Number.isFinite(ult.margem) ? `Margem ${fmtPct(ult.margem)}${PROVISORIO[rows.length-1]?' (provisória)':''}` : 'Margem aguardando ADS'},
+];
+document.getElementById('chips').innerHTML = chips.map(c=>
+  `<span class="chip ${c.s}"><span class="dot"></span>${c.t}</span>`).join('');
+
+const varJul = (ult.total/rows[rows.length-2].total-1)*100;
+document.getElementById('tiles').innerHTML = [
+  {l:`Faturamento · ${ult.mes}`, v:fmtR$(ult.total), d:`<span class="${varJul>=0?'up':'down'}">${varJul>=0?'▲':'▼'} ${fmtPct(Math.abs(varJul))}</span> vs ${rows[rows.length-2].ab}`},
+  {l:`Lucro · ${ult.mes}`, v: Number.isFinite(ult.lucro) ? fmtR$(ult.lucro) : '—', d: Number.isFinite(ult.margem) ? `margem de ${fmtPct(ult.margem)}${PROVISORIO[rows.length-1]?' · <b style="color:var(--warn)">provisório</b> — '+PROVISORIO[rows.length-1]:''}` : 'aguardando ADS do mês'},
+  {l:`ADS · ${ult.mes}`, v: Number.isFinite(ult.ads) ? fmtR$(ult.ads) : '—', d: Number.isFinite(ult.adsPct) ? `${fmtPct(ult.adsPct)} do faturamento (limite 5%)` : 'dados incompletos — faltam Zelia, Flavia e Meli/Amazon'},
+  {l:'Acumulado 2026', v:fmtR$(total26), d:`lucro de ${fmtR$(lucro26)} (jan–${MESES_AB[rows.length-1].toLowerCase()}) · margem ${fmtPct(lucro26/totalComLucro*100)}`},
+].map(t=>`<div class="card tile"><div class="label">${t.l}</div><div class="value num">${t.v}</div><div class="delta">${t.d}</div></div>`).join('');
+
+/* ================= matriz farol ================= */
+const dot = s => `<span class="semaforo ${s}"></span>`;
+const cell = (s, txt) => `<span class="cell">${dot(s)}<span class="num">${txt}</span></span>`;
+const cellSafe = (s, v, fmt) => Number.isFinite(v) ? cell(s, fmt(v)) : `<span class="cell">${dot('off')}<span style="color:var(--ink-3)">aguardando</span></span>`;
+let mHtml = `<thead><tr><th>Mês</th><th>Faturamento</th><th>vs meta*</th><th>ADS %</th><th>Margem</th><th>Lucro</th><th>Qtd itens</th></tr></thead><tbody>`;
+rows.forEach(r=>{
+  const vsMeta = (r.total/r.meta-1)*100;
+  mHtml += `<tr>
+    <td>${r.mes}</td>
+    <td>${cell(r.fFat, fmtR$(r.total))}</td>
+    <td class="num" style="color:${vsMeta>=0?'var(--ok-ink)':'var(--crit)'}">${vsMeta>=0?'+':''}${fmtPct(vsMeta)}</td>
+    <td>${cellSafe(r.fAds, r.adsPct, fmtPct)}</td>
+    <td>${cellSafe(r.fMar, r.margem, fmtPct)}</td>
+    <td class="num">${Number.isFinite(r.lucro) ? fmtR$(r.lucro) + (PROVISORIO[rows.indexOf(r)] ? ' <span class="tag" title="'+PROVISORIO[rows.indexOf(r)]+'">prov.</span>' : '') : '<span style="color:var(--ink-3)">aguardando ADS</span>'}</td>
+    <td>${cell(r.fQtd, r.qtd.toLocaleString('pt-BR'))}</td></tr>`;
+});
+for(let i=rows.length;i<12;i++){
+  mHtml += `<tr class="future"><td>${MESES[i]}</td><td><span class="cell">${dot('off')}aguardando</span></td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>`;
+}
+mHtml += `<tr class="total-row"><td>TOTAL (jan–${MESES_AB[rows.length-1].toLowerCase()})</td><td class="num">${fmtR$(total26)}</td><td>—</td>
+  <td class="num">${fmtPct(ads26/totalComAds*100)}</td><td class="num">${fmtPct(lucro26/totalComLucro*100)}</td>
+  <td class="num">${fmtR$(lucro26)}</td><td class="num">${tot('qtd').toLocaleString('pt-BR')}</td></tr></tbody>`;
+document.getElementById('matriz').innerHTML = mHtml;
+
+/* ================= MEI ================= */
+const mei = document.getElementById('mei');
+let meiHtml = '';
+CONTAS_MEI.forEach(c=>{
+  const {teto, tolerancia, atencao} = REGRAS.mei;
+  const pct = c.acum/teto;
+  const mediaMes = c.acum/rows.length;
+  const restantes = 12-rows.length;
+  const projDez = c.acum + mediaMes*restantes;
+  const st = c.acum>teto ? 'crit' : (pct>=atencao ? 'warn' : 'ok');
+  const w = Math.min(c.acum/tolerancia*100, 100);
+  let proj;
+  if (projDez > tolerancia){
+    const mesesAte = Math.ceil((teto-c.acum)/mediaMes);
+    proj = `<b style="color:var(--crit)">⚠ No ritmo atual (${fmtR$(mediaMes)}/mês), projeção de ${fmtR$(projDez)} em dezembro — passa até da tolerância. Teto de R$ 81 mil estoura por volta de ${MESES[Math.min(rows.length-1+mesesAte,11)]}.</b>`;
+  } else if (projDez > teto){
+    proj = `<b style="color:var(--warn)">Projeção de ${fmtR$(projDez)} em dezembro — acima do teto, dentro da tolerância de 20%.</b>`;
+  } else {
+    proj = `Projeção de ${fmtR$(projDez)} em dezembro (${fmtPct(projDez/teto*100)} do teto) — dentro do limite no ritmo atual de ${fmtR$(mediaMes)}/mês.`;
+  }
+  meiHtml += `<div class="mei-item">
+    <div class="mei-line"><span class="mei-name"><span class="semaforo ${st}" style="margin-right:7px"></span>${c.nome}</span>
+      <span class="num" style="color:var(--ink-2)">${fmtR$c(c.acum)} · ${fmtPct(pct*100)} do teto</span></div>
+    <div class="mei-track">
+      <div class="mei-fill ${st}" style="width:${w}%"></div>
+      <div class="mei-mark" style="left:${teto/tolerancia*100}%" title="Teto R$ 81.000"></div>
+      <div class="mei-mark hard" style="left:calc(100% - 1px)" title="Tolerância R$ 97.200"></div>
+    </div>
+    <div class="mei-legend"><span>│ cinza = teto R$ 81.000</span><span>│ vermelho = tolerância R$ 97.200</span></div>
+    <div class="mei-note">${proj}${c.obs ? `<br><span style="color:${c.obsAlerta?'var(--warn)':'var(--ink-3)'}">Obs.: ${c.obs}</span>`:''}</div>
+  </div>`;
+});
+meiHtml += `<div class="mei-item"><div class="mei-line"><span class="mei-name">Demais contas <span class="tag">Simples Nacional</span></span></div>
+  <div class="mei-note">${CONTAS_OUTRAS.map(([n,v])=>`${n}: <b class="num">${fmtR$(v)}</b>`).join(' · ')} — confirmado pelo Bruno em 01/09: Smith, Ranum e RFF são Simples Nacional (não MEI). Só Flavia (+Amora) e Zelia (Dandora) são MEI e entram no acompanhamento do teto acima.</div></div>`;
+mei.innerHTML = meiHtml;
+</script>
+<script>
+/* ================= comparativo 2026 x 2025 ================= */
+document.getElementById('comp-sub').innerHTML =
+  `Nos ${rows.length} meses fechados, 2026 soma <b class="num">${fmtR$(total26)}</b> — <b>${(total26/T2025.slice(0,rows.length).reduce((a,b)=>a+b,0)).toLocaleString('pt-BR',{maximumFractionDigits:1})}×</b> o mesmo período de 2025 e <b>${(total26/total25).toLocaleString('pt-BR',{maximumFractionDigits:1})}×</b> o ano de 2025 inteiro (${fmtR$(total25)}).`;
+
+const tip = document.getElementById('tip');
+function hover(el, html){
+  el.addEventListener('mousemove', e=>{ tip.innerHTML=html; tip.style.opacity=1;
+    tip.style.left=Math.min(e.clientX+14, innerWidth-tip.offsetWidth-8)+'px'; tip.style.top=(e.clientY-36)+'px'; });
+  el.addEventListener('mouseleave', ()=> tip.style.opacity=0);
+}
+
+/* barras agrupadas mensais */
+(function(){
+  const W=1010, H=300, m={t:16,r:8,b:26,l:56};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const max=300000, y=v=>m.t+ih-(v/max)*ih;
+  const gw=iw/12, bw=Math.min(16,(gw-14)/2);
+  let s='';
+  for(let g=0; g<=6; g++){ const v=g*50000, yy=y(v);
+    s+=`<line x1="${m.l}" y1="${yy}" x2="${W-m.r}" y2="${yy}" stroke="var(--grid)" stroke-width="1"/>`;
+    s+=`<text x="${m.l-8}" y="${yy+4}" text-anchor="end" font-size="11" fill="var(--ink-3)">${v?(v/1000)+' mil':'0'}</text>`;
+  }
+  const bars=[];
+  for(let i=0;i<12;i++){
+    const cx=m.l+gw*i+gw/2;
+    const v26 = i<rows.length ? rows[i].total : null;
+    const v25 = T2025[i];
+    if(v26!==null){ const yy=y(v26);
+      bars.push({x:cx-bw-1.5, y:yy, w:bw, h:m.t+ih-yy, c:'var(--serie-26)', t:`<b>${MESES[i]}/2026</b> — <b>${fmtR$(v26)}</b>`}); }
+    const y25=y(v25);
+    bars.push({x:cx+1.5, y:y25, w:bw, h:m.t+ih-y25, c:'var(--serie-25)', t:`<b>${MESES[i]}/2025</b> — <b>${fmtR$(v25)}</b>`});
+    s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="11.5" fill="var(--ink-3)">${MESES_AB[i]}</text>`;
+  }
+  s+=`<line x1="${m.l}" y1="${m.t+ih}" x2="${W-m.r}" y2="${m.t+ih}" stroke="var(--baseline)" stroke-width="1"/>`;
+  bars.forEach((b,i)=>{ s+=`<path data-i="${i}" d="M${b.x},${b.y+4} q0,-4 4,-4 h${b.w-8} q4,0 4,4 v${Math.max(b.h-4,0)} h${-b.w} z" fill="${b.c}"/>`; });
+  const el=document.getElementById('chart-anos');
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Faturamento mensal, 2026 contra 2025">${s}</svg>`;
+  el.querySelectorAll('path[data-i]').forEach(p=> hover(p, bars[+p.dataset.i].t));
+})();
+
+/* linha de margem com faixas de referência */
+(function(){
+  const W=500, H=250, m={t:14,r:14,b:26,l:40};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const max=14, y=v=>m.t+ih-(v/max)*ih, x=i=>m.l+iw*(i/(11));
+  let s='';
+  for(const g of [0,4,8,12]){ const yy=y(g);
+    s+=`<line x1="${m.l}" y1="${yy}" x2="${W-m.r}" y2="${yy}" stroke="var(--grid)"/>`;
+    s+=`<text x="${m.l-7}" y="${yy+4}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">${g}%</text>`; }
+  s+=`<line x1="${m.l}" y1="${y(REGRAS.margem.verde)}" x2="${W-m.r}" y2="${y(REGRAS.margem.verde)}" stroke="var(--ok)" stroke-dasharray="5 4" stroke-width="1.5"/>`;
+  s+=`<text x="${W-m.r}" y="${y(REGRAS.margem.verde)-5}" text-anchor="end" font-size="10.5" fill="var(--ok-ink)">meta 10%</text>`;
+  s+=`<line x1="${m.l}" y1="${y(REGRAS.margem.amarelo)}" x2="${W-m.r}" y2="${y(REGRAS.margem.amarelo)}" stroke="var(--crit)" stroke-dasharray="5 4" stroke-width="1.5"/>`;
+  s+=`<text x="${W-m.r}" y="${y(REGRAS.margem.amarelo)+13}" text-anchor="end" font-size="10.5" fill="var(--crit)">piso 8%</text>`;
+  // só meses com margem apurada entram na linha — Agosto (ADS pendente) fica de fora do traço, mas ganha um marcador "aguardando"
+  const finite = rows.map((r,i)=>({r,i})).filter(o=>Number.isFinite(o.r.margem));
+  const pts = finite.map(o=>[x(o.i), y(o.r.margem)]);
+  s+=`<polyline points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="var(--serie-26)" stroke-width="2" stroke-linejoin="round"/>`;
+  finite.forEach((o,k)=>{ const [px,py]=pts[k];
+    s+=`<circle data-i="${o.i}" cx="${px}" cy="${py}" r="${o.i===rows.length-1?5:4}" fill="var(--serie-26)" stroke="var(--surface)" stroke-width="2"/>`; });
+  rows.forEach((r,i)=>{
+    if(!Number.isFinite(r.margem)){
+      const px=x(i), py=m.t+ih-6;
+      s+=`<circle cx="${px}" cy="${py}" r="4" fill="none" stroke="var(--ink-3)" stroke-width="1.5" stroke-dasharray="2 2"/>`;
+      s+=`<text x="${px}" y="${py-8}" text-anchor="middle" font-size="9.5" fill="var(--ink-3)">aguard.</text>`;
+    }
+    s+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">${r.ab}</text>`; });
+  if(pts.length){ const u=pts[pts.length-1], lastR=finite[finite.length-1].r;
+    s+=`<text x="${u[0]}" y="${u[1]-10}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${fmtPct(lastR.margem)}</text>`; }
+  s+=`<line x1="${m.l}" y1="${m.t+ih}" x2="${W-m.r}" y2="${m.t+ih}" stroke="var(--baseline)"/>`;
+  const el=document.getElementById('chart-margem');
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Margem de lucro mensal">${s}</svg>`;
+  el.querySelectorAll('circle[data-i]').forEach(c=>{ const r=rows[+c.dataset.i];
+    hover(c, `<b>${r.mes}</b> — margem <b>${fmtPct(r.margem)}</b> · lucro <b>${fmtR$(r.lucro)}</b>`); });
+})();
+
+/* share por marketplace */
+(function(){
+  const totalMkt = SHARE_MKT.reduce((a,[,v])=>a+v,0);
+  const maxV = SHARE_MKT[0][1];
+  document.getElementById('share').innerHTML = SHARE_MKT.map(([n,v])=>`
+    <div class="share-row"><span>${n}</span>
+      <div><div class="bar" data-n="${n}" style="width:${Math.max(v/maxV*100,0.6)}%"></div></div>
+      <span class="val num">${fmtR$(v)} · ${fmtPct(v/totalMkt*100)}</span></div>`).join('');
+  document.querySelectorAll('.share-row .bar').forEach(b=>{
+    const [n,v]=SHARE_MKT.find(([n])=>n===b.dataset.n);
+    hover(b, `<b>${n}</b> — <b>${fmtR$(v)}</b> (${fmtPct(v/totalMkt*100)})`); });
+})();
+
+/* custo mensal (fluxo de caixa) vs faturamento — "Total Gasto Mês", a seu pedido em 01/09 */
+(function(){
+  // gasto = célula "Total Gasto Mês" de cada aba mensal do Fluxo_De_Caixa_2025_version_1.xlsx (regime de caixa, não de competência)
+  const GASTO = { 'Dez/25':53547.12, 'Jan/26':51884.27, 'Fev/26':71068.68, 'Mar/26':78180.99,
+    'Abr/26':109609.69, 'Mai/26':139205.17, 'Jun/26':141373.65, 'Jul/26':160642.54, 'Ago/26':157393.05, 'Set/26':147474.65 };
+  const CUSTO_FAT = [
+    {mes:'Dez/25', fat:DEZ_2025},
+    ...rows.map((r,i)=>({mes:`${r.ab}/26`, fat:r.total})),
+  ].map(o=>({...o, gasto:GASTO[o.mes]}));
+
+  let h = `<thead><tr><th>Mês</th><th>Faturamento</th><th>Total Gasto Mês</th><th>Gasto ÷ Faturamento</th><th>% Acumulado</th></tr></thead><tbody>`;
+  let fatAcum = 0, gastoAcum = 0;
+  CUSTO_FAT.forEach(o=>{
+    const pct = o.gasto/o.fat*100;
+    const col = pct>=60 ? 'var(--crit)' : (pct>=45 ? 'var(--warn)' : 'var(--ok-ink)');
+    fatAcum += o.fat; gastoAcum += o.gasto;
+    const pctAcum = gastoAcum/fatAcum*100;
+    const colAcum = pctAcum>=60 ? 'var(--crit)' : (pctAcum>=45 ? 'var(--warn)' : 'var(--ok-ink)');
+    h += `<tr><td>${o.mes}</td><td class="num">${fmtR$(o.fat)}</td><td class="num">${fmtR$(o.gasto)}</td>
+      <td class="num" style="color:${col}; font-weight:600">${fmtPct(pct)}</td>
+      <td class="num" style="color:${colAcum}">${fmtPct(pctAcum)}</td></tr>`;
+  });
+  const totFatCusto = CUSTO_FAT.reduce((a,o)=>a+o.fat,0), totGasto = CUSTO_FAT.reduce((a,o)=>a+o.gasto,0);
+  h += `<tr class="total-row"><td>TOTAL (Dez/25–${rows[rows.length-1].ab}/26)</td><td class="num">${fmtR$(totFatCusto)}</td>
+    <td class="num">${fmtR$(totGasto)}</td><td class="num">${fmtPct(totGasto/totFatCusto*100)}</td><td class="num">—</td></tr>`;
+  document.getElementById('custo-fat').innerHTML = h + `</tbody>`;
+})();
+
+/* ================= regras ================= */
+const li=(s,t)=>`<li>${dot(s)}${t}</li>`;
+document.getElementById('rules').innerHTML = `
+  <div class="card rule"><h3>ADS (% do faturamento)</h3><ul>
+    ${li('ok',`até ${fmtPct(REGRAS.ads.verde)} — sua regra "máximo 5%"`)}
+    ${li('warn',`de ${fmtPct(REGRAS.ads.verde)} a ${fmtPct(REGRAS.ads.amarelo)}`)}
+    ${li('crit',`acima de ${fmtPct(REGRAS.ads.amarelo)}`)}</ul></div>
+  <div class="card rule"><h3>Margem de lucro</h3><ul>
+    ${li('ok',`${fmtPct(REGRAS.margem.verde)} ou mais — mínimo citado na aba Comissão`)}
+    ${li('warn',`entre ${fmtPct(REGRAS.margem.amarelo)} e ${fmtPct(REGRAS.margem.verde)}`)}
+    ${li('crit',`abaixo de ${fmtPct(REGRAS.margem.amarelo)}`)}</ul></div>
+  <div class="card rule"><h3>Faturamento vs meta</h3><ul>
+    ${li('ok','igual ou acima do mês anterior')}
+    ${li('warn','até 15% abaixo do mês anterior')}
+    ${li('crit','mais de 15% abaixo')}</ul>
+    <div class="mei-note">Meta proposta: crescer todo mês (meta = mês anterior). Se preferir valor fixo ou % sobre 2025, é trocar uma linha.</div></div>
+  <div class="card rule"><h3>Limite MEI</h3><ul>
+    ${li('ok','abaixo de 70% do teto (R$ 56.700)')}
+    ${li('warn','entre 70% e 100% do teto')}
+    ${li('crit','acima de R$ 81.000 — e acima de R$ 97.200 há desenquadramento retroativo')}</ul></div>
+  <div class="card rule"><h3>Meta de itens (rateio)</h3><ul>
+    ${li('ok',`${REGRAS.qtd.meta.toLocaleString('pt-BR')} itens/mês ou mais`)}
+    ${li('warn',`até 15% abaixo da meta (${Math.round(REGRAS.qtd.meta*0.85).toLocaleString('pt-BR')}–${(REGRAS.qtd.meta-1).toLocaleString('pt-BR')})`)}
+    ${li('crit','mais de 15% abaixo da meta')}</ul>
+    <div class="mei-note">Meta = 6.000, origem "Volume de vendas estimado por mês" da planilha de precificação, confirmada por você em 24/08. Comparada contra a coluna "Qtd itens" (Pedidos Válidos). Abaixo disso a fórmula "Leo+Arthur+Flávia" tende a ficar mais apertada — Agosto ficou em 5.747 (amarelo) e Setembro em 4.313 — 28% abaixo da meta (vermelho). Critério de contagem de "Qtd itens" mudou mais de uma vez em 2026 (ver coluna na matriz) — a comparação mês a mês antes de agosto não é 100% direta.</div></div>`;
+
+document.getElementById('foot').innerHTML =
+  `Fonte: fechamento setembro/2026 (planilhas avulsas — 1ª rodada, devoluções e prejuízo pendentes) · Farol atualizado 1× ao mês — envie as <b>planilhas avulsas do mês</b> (vendas por loja, relatórios dos marketplaces, ADS, devoluções/prejuízo) na conversa do projeto <b>Farol E-commerce – Financeiro</b> e este mesmo link é republicado com o novo mês. No GitHub, use o botão <b>Atualizar GitHub</b> (topo da página) para subir o index.html novo de cada mês. Lucro calculado hoje pela estimativa da sua planilha (15% + R$ 0,50/item − ADS − devoluções − prejuízo); migração para custo real em andamento (ver aba DRE). Valores de meses fechados apenas; nada é projetado exceto onde indicado.`;
+</script>
+<script>
+/* ================= ABA POR LOJA ================= */
+// mensal = jan..set (setembro rateado — ver subtítulo da aba); mkt = acumulado por marketplace
+const LOJAS = [
+ {nome:'Smith',            mensal:[81250.39,65769.95,67622.20,63052.28,79043.30,96995.02,111950.15,125357.67,108963.29], mkt:{'Shopee':573922.60,'SHEIN':64371.26,'Mercado Livre':84552.57,'Amazon':37719.56,'TikTok':38516.69,'TEMU':921.56}},
+ {nome:'Ranum',            mensal:[39148.27,53848.51,80214.60,71049.33,71029.30,71800.20,94095.37,78889.88,52220.13],  mkt:{'Shopee':427154.89,'Mercado Livre':93332.48,'Amazon':50669.36,'TikTok':41138.86}},
+ {nome:'RFF',              mensal:[18372.38,12790.79,21139.92,46670.84,46909.55,72112.48,52122.81,45914.34,50483.49],  mkt:{'Shopee':331969.82,'TikTok':24163.46,'SHEIN':8280.69,'Mercado Livre':1707.42,'Magalu':395.20}},
+ {nome:'Zelia (Dandora)',  mensal:[5794.99,13166.94,7142.26,7636.70,10718.63,11681.26,3959.11,853.68,835.93],        mkt:{'Shopee':61665.80,'SHEIN':123.70}},
+ {nome:'Flavia (+Amora)',  mensal:[3248.56,5177.02,11089.91,7353.35,7751.86,3032.37,3188.58,3093.86,5367.21],         mkt:{'Shopee':48875.72,'Mercado Livre':427.00}},
+ {nome:'Outros canais',    mensal:[481.37,704.37,2004.79,559.76,428.39,683.02,496.86,0,0],                      mkt:{'Kabum':3745.86,'Magalu':817.59,'TEMU':795.11}},
+];
+LOJAS.forEach(l=> l.total = l.mensal.reduce((a,b)=>a+b,0));
+
+function spark(vals, w=110, h=26){
+  const max = Math.max(...vals), min = 0;
+  const x = i => 2 + (w-4)*(i/(vals.length-1));
+  const y = v => h-3 - (h-8)*((v-min)/(max-min || 1));
+  const pts = vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const lx = x(vals.length-1), ly = y(vals[vals.length-1]);
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true" style="display:inline-block">
+    <polyline points="${pts}" fill="none" stroke="var(--serie-26)" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="${lx}" cy="${ly}" r="3" fill="var(--serie-26)"/></svg>`;
+}
+
+/* tabela: lojas × meses */
+(function(){
+  const nMeses = rows.length;
+  let h = `<thead><tr><th>Loja</th><th style="text-align:center">Tendência</th>`;
+  for(let i=0;i<nMeses;i++) h += `<th>${MESES_AB[i]}</th>`;
+  h += `<th>Total</th><th>Share</th></tr></thead><tbody>`;
+  LOJAS.forEach(l=>{
+    h += `<tr><td>${l.nome}</td><td style="text-align:center">${spark(l.mensal, 88, 24)}</td>`;
+    l.mensal.forEach((v,i)=>{
+      const best = v>0 && v===Math.max(...l.mensal);
+      h += `<td class="num"${best?' style="font-weight:600"':''}>${v>0?Math.round(v).toLocaleString('pt-BR'):'<span style="color:var(--ink-3)">—</span>'}</td>`;
+    });
+    h += `<td class="num" style="font-weight:600">${fmtR$(l.total)}</td>`;
+    h += `<td class="num">${fmtPct(l.total/total26*100)}</td></tr>`;
+  });
+  h += `<tr class="total-row"><td>TOTAL</td><td></td>`;
+  for(let i=0;i<nMeses;i++) h += `<td class="num">${Math.round(LOJAS.reduce((a,l)=>a+l.mensal[i],0)).toLocaleString('pt-BR')}</td>`;
+  h += `<td class="num">${fmtR$(total26)}</td><td class="num">100%</td></tr></tbody>`;
+  document.getElementById('tab-lojas-tabela').innerHTML = h;
+})();
+
+/* ================= ABA ADS (Agosto/2026 — 1º mês com ADS aberto por loja) ================= */
+// ads = total do mês, critério final em 01/09 (3ª correção): Shopee = RECARGA PAGA no mês (não mais "Deduction"),
+// a pedido do Bruno (conferência manual da Ranum bateu R$2.760,00 com esse critério). Ver D2026[7][2] = 12333.87.
+// RFF inclui também a "Recarga Automática (Comissão)" de R$562,87 (82 lançamentos pequenos em agosto) — Bruno pediu
+// para CONSIDERAR esse valor como gasto real e para ser AVISADO sempre que esse tipo de recarga automática aparecer
+// em qualquer loja no futuro, pois ele quer desativar essa configuração em todas as lojas (não quer nenhuma ativa).
+// fat = faturamento de agosto por loja. Zelia e Flavia: R$0 confirmado pelo Bruno (não usam ADS em nenhum canal).
+// RFF: não usa ADS de Meli/Amazon.
+// SETEMBRO/2026: Smith Shopee 4.435,00 (9 recargas pagas) · Ranum Shopee 1.940,00 (3 recargas) · RFF Shopee 2.550,00 (4 recargas)
+// + 15,58 de "Recarga Automática (Comissão)" em 01–03/09 (nenhuma depois de 03/09). Crédito Gratuito, Free Ads Credit e
+// "ROAS Protection Free Ads Credit Rebate" ficam de fora (bônus da Shopee, não dinheiro pago).
+// Meli/Amazon/TikTok informados pelo Bruno em 02/10. RFF passou a ter ADS de Meli (R$98) — novo em setembro.
+// fat = faturamento de setembro por loja, RATEADO (Vendas_loja_performance não veio): total válido × participação no Vendas_por_Produtos.
+const ADS_LOJAS = [
+  {nome:'Smith',            ads:5723.00, fat:108963.29},
+  {nome:'Ranum',             ads:3870.00, fat:52220.13},
+  {nome:'RFF',                ads:3225.58, fat:50483.49},
+  {nome:'Zelia (Dandora)',   ads:0,       fat:835.93},
+  {nome:'Flavia (+Amora)',   ads:0,       fat:5367.21},
+];
+ADS_LOJAS.forEach(l=>{ l.pct = l.fat>0 ? l.ads/l.fat*100 : NaN; l.f = farolAds(l.pct); });
+ADS_LOJAS.sort((a,b)=> (Number.isFinite(b.pct)?b.pct:-1) - (Number.isFinite(a.pct)?a.pct:-1)); // pior primeiro (ofensora no topo)
+
+(function(){
+  const totAds = ADS_LOJAS.reduce((a,l)=>a+l.ads,0), totFat = ADS_LOJAS.reduce((a,l)=>a+l.fat,0);
+  let h = `<thead><tr><th>Loja</th><th>ADS</th><th>Faturamento</th><th>ADS %</th></tr></thead><tbody>`;
+  ADS_LOJAS.forEach(l=>{
+    h += `<tr><td>${l.nome}</td><td class="num">${fmtR$c(l.ads)}</td><td class="num">${fmtR$(l.fat)}</td>
+      <td>${cellSafe(l.f, l.pct, fmtPct)}</td></tr>`;
+  });
+  h += `<tr class="total-row"><td>TOTAL Setembro</td><td class="num">${fmtR$c(totAds)}</td><td class="num">${fmtR$(totFat)}</td>
+    <td>${cell(farolAds(totAds/totFat*100), fmtPct(totAds/totFat*100))}</td></tr></tbody>`;
+  document.getElementById('tab-ads-tabela').innerHTML = h;
+})();
+
+/* barras ADS% por loja, com linhas de referência 5% e 6% */
+(function(){
+  const W=900, H=220, m={t:16,r:16,b:34,l:56};
+  const iw=W-m.l-m.r, ih=H-m.t-m.b;
+  const vals = ADS_LOJAS.filter(l=>Number.isFinite(l.pct));
+  const max = Math.max(8, ...vals.map(l=>l.pct));
+  const y = v => m.t+ih-(v/max)*ih;
+  const gw = iw/vals.length, bw = Math.min(70, gw*0.5);
+  let s='';
+  for(const g of [0,2,4,6,8]){ if(g>max+1) continue; const yy=y(g);
+    s+=`<line x1="${m.l}" y1="${yy}" x2="${W-m.r}" y2="${yy}" stroke="var(--grid)"/>`;
+    s+=`<text x="${m.l-8}" y="${yy+4}" text-anchor="end" font-size="10.5" fill="var(--ink-3)">${g}%</text>`; }
+  s+=`<line x1="${m.l}" y1="${y(5)}" x2="${W-m.r}" y2="${y(5)}" stroke="var(--ok)" stroke-dasharray="5 4" stroke-width="1.5"/>`;
+  s+=`<line x1="${m.l}" y1="${y(6)}" x2="${W-m.r}" y2="${y(6)}" stroke="var(--crit)" stroke-dasharray="5 4" stroke-width="1.5"/>`;
+  const cor = {ok:'var(--ok)', warn:'var(--warn-bg)', crit:'var(--crit)'};
+  vals.forEach((l,i)=>{
+    const cx = m.l+gw*i+gw/2, yy=y(l.pct), h2=m.t+ih-yy;
+    s+=`<rect data-i="${i}" x="${cx-bw/2}" y="${yy}" width="${bw}" height="${Math.max(h2,1)}" rx="4" fill="${cor[l.f]}"/>`;
+    s+=`<text x="${cx}" y="${yy-6}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--ink)">${fmtPct(l.pct)}</text>`;
+    s+=`<text x="${cx}" y="${H-10}" text-anchor="middle" font-size="11" fill="var(--ink-3)">${l.nome.split(' ')[0]}</text>`;
+  });
+  s+=`<line x1="${m.l}" y1="${m.t+ih}" x2="${W-m.r}" y2="${m.t+ih}" stroke="var(--baseline)"/>`;
+  const el = document.getElementById('chart-ads-lojas');
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="ADS por loja">${s}</svg>`;
+  el.querySelectorAll('rect[data-i]').forEach(r=>{ const l=vals[+r.dataset.i];
+    hover(r, `<b>${l.nome}</b> — ADS <b>${fmtR$c(l.ads)}</b> · faturamento <b>${fmtR$(l.fat)}</b> · <b>${fmtPct(l.pct)}</b>`); });
+})();
+
+/* ADS por loja × canal (Shopee = recarga paga no mês, ver nota acima; RFF Shopee inclui R$562,87 de Recarga Automática) */
+const ADS_LOJAS_CANAL = [
+  {nome:'Smith',          canais:{Shopee:4435.00, 'Mercado Livre':744.00, Amazon:105.00, TikTok:439.00}},
+  {nome:'Ranum',           canais:{Shopee:1940.00, 'Mercado Livre':216.00, Amazon:999.00, TikTok:715.00}},
+  {nome:'RFF',              canais:{Shopee:2565.58, 'Mercado Livre':98.00,  Amazon:0,       TikTok:562.00}},
+  {nome:'Zelia (Dandora)', canais:{Shopee:0,       'Mercado Livre':0,      Amazon:0,       TikTok:0}},
+  {nome:'Flavia (+Amora)', canais:{Shopee:0,       'Mercado Livre':0,      Amazon:0,       TikTok:0}},
+];
+(function(){
+  const CANAIS = ['Shopee','Mercado Livre','Amazon','TikTok'];
+  const porNome = Object.fromEntries(ADS_LOJAS.map(l=>[l.nome, l])); // faturamento/pct/farol já calculados na aba ADS por loja
+  let h = `<thead><tr><th>Loja</th>${CANAIS.map(c=>`<th>${c}</th>`).join('')}<th>Total ADS</th><th>Faturamento</th><th>ADS % (meta 5%)</th></tr></thead><tbody>`;
+  const totCanal = Object.fromEntries(CANAIS.map(c=>[c,0]));
+  let totGeral = 0;
+  ADS_LOJAS_CANAL.forEach(l=>{
+    const tot = CANAIS.reduce((a,c)=>a+l.canais[c],0);
+    totGeral += tot;
+    const ref = porNome[l.nome];
+    h += `<tr><td>${l.nome}</td>`;
+    CANAIS.forEach(c=>{ totCanal[c]+=l.canais[c]; h += `<td class="num">${l.canais[c]>0 ? fmtR$c(l.canais[c]) : '<span style="color:var(--ink-3)">—</span>'}</td>`; });
+    h += `<td class="num" style="font-weight:600">${fmtR$c(tot)}</td>
+      <td class="num">${fmtR$(ref.fat)}</td>
+      <td>${cellSafe(ref.f, ref.pct, fmtPct)}</td></tr>`;
+  });
+  const totFatGeral = ADS_LOJAS.reduce((a,l)=>a+l.fat,0);
+  h += `<tr class="total-row"><td>TOTAL Setembro</td>${CANAIS.map(c=>`<td class="num">${fmtR$c(totCanal[c])}</td>`).join('')}
+    <td class="num">${fmtR$c(totGeral)}</td><td class="num">${fmtR$(totFatGeral)}</td>
+    <td>${cell(farolAds(totGeral/totFatGeral*100), fmtPct(totGeral/totFatGeral*100))}</td></tr></tbody>`;
+  document.getElementById('tab-ads-canal-tabela').innerHTML = h;
+})();
+
+/* cards por loja: variação e abertura por marketplace */
+(function(){
+  const n = rows.length;
+  document.getElementById('lojas-cards').innerHTML = LOJAS.map(l=>{
+    const atual = l.mensal[n-1], ant = l.mensal[n-2];
+    let varTxt;
+    if(ant>0 && atual>0){
+      const p = (atual/ant-1)*100;
+      varTxt = `${MESES_AB[n-1]}: <b class="num">${fmtR$(atual)}</b> · <span class="${p>=0?'up':'down'}">${p>=0?'▲':'▼'} ${fmtPct(Math.abs(p))}</span> vs ${MESES_AB[n-2]}`;
+    } else varTxt = `${MESES_AB[n-1]}: <b class="num">${atual>0?fmtR$(atual):'sem vendas'}</b>`;
+    const maxMkt = Math.max(...Object.values(l.mkt));
+    const mkts = Object.entries(l.mkt).map(([m,v])=>`
+      <div class="mkt-row"><span>${m}</span>
+        <div><div class="bar" style="width:${Math.max(v/maxMkt*100,1)}%"></div></div>
+        <span class="val num">${fmtR$(v)} · ${fmtPct(v/l.total*100)}</span></div>`).join('');
+    return `<div class="card loja-card">
+      <div class="loja-head"><span class="loja-nome">${l.nome}</span><span class="loja-share">${fmtPct(l.total/total26*100)} do faturamento</span></div>
+      <div class="loja-total num">${fmtR$(l.total)}</div>
+      <div class="loja-var">${varTxt}</div>${mkts}</div>`;
+  }).join('');
+})();
+
+/* troca de abas (lembra a última aberta; falha silenciosa se o storage não existir) */
+(function(){
+  const KEYS = ['geral','lojas','ads','afiliados','real'];
+  const tabs={}, views={};
+  KEYS.forEach(k=>{ tabs[k]=document.getElementById('tab-'+k); views[k]=document.getElementById('view-'+k); });
+  function show(k){
+    KEYS.forEach(key=>{
+      tabs[key].setAttribute('aria-selected', key===k ? 'true':'false');
+      views[key].hidden = key!==k;
+    });
+    try{ localStorage.setItem('farol-tab', k); }catch(e){}
+  }
+  KEYS.forEach(k=> tabs[k].addEventListener('click', ()=>show(k)));
+  let ini='geral';
+  try{ const s=localStorage.getItem('farol-tab'); if(KEYS.includes(s)) ini=s; }catch(e){}
+  show(ini);
+})();
+</script>
+<script>
+/* ================= ABA AFILIADOS (Setembro/2026 — Central de Afiliados Shopee, 3 lojas) ================= */
+const AF_LOJAS = [ // SETEMBRO/2026 — prints do painel "Principais Indicadores" (vendas arredondadas pelo painel)
+  { nome:'Smith', user:'smithlt',
+    vendas:20700, vendasVar:5.91, itens:432, itensVar:-21.02, pedidos:419, pedidosVar:-20.19,
+    cliques:5800, cliquesVar:16.71, comissao:609.70, comissaoVar:20.95, roi:33.9, roiVar:-12.43,
+    compradores:418, compradoresVar:-20.08, novos:399, novosVar:-18.90,
+    canais:[{nome:'Outros',pct:38.2},{nome:'Shopee Video',pct:27.9},{nome:'Instagram',pct:22.9},{nome:'Facebook',pct:6.0},{nome:'Shopee Live',pct:2.6},{nome:'YouTube',pct:2.4}],
+    top:[
+      {nome:'Bia Nobre Importa…', user:'biacimportados', vendas:1284.92, itens:5, pedidos:5, cliques:425, comissao:64.25, roi:20},
+      {nome:'Tec-do', user:'tec_do', vendas:1184.36, itens:24, pedidos:24, cliques:2, comissao:17.77, roi:66.7},
+      {nome:'Amanda Store', user:'amandamichele14', vendas:1158.97, itens:34, pedidos:34, cliques:568, comissao:57.95, roi:20},
+      {nome:'zMaticooBR', user:'zmaticoobr', vendas:682.91, itens:12, pedidos:11, cliques:20, comissao:10.24, roi:66.7},
+      {nome:'Priscila Pessanha', user:'pripessanha', vendas:520.04, itens:2, pedidos:1, cliques:1, comissao:7.80, roi:66.7},
+    ] },
+  { nome:'Ranum', user:'ranum_store',
+    vendas:8700, vendasVar:-23.61, itens:148, itensVar:-35.37, pedidos:134, pedidosVar:-36.49,
+    cliques:1700, cliquesVar:-27.13, comissao:225.30, comissaoVar:-27.23, roi:38.7, roiVar:4.97,
+    compradores:134, compradoresVar:-35.89, novos:127, novosVar:-35.20,
+    canais:[{nome:'Outros',pct:51.5},{nome:'Instagram',pct:22.4},{nome:'Shopee Video',pct:14.9},{nome:'Facebook',pct:7.5},{nome:'YouTube',pct:2.2},{nome:'Shopee Live',pct:1.5}],
+    top:[
+      {nome:'Tec-do', user:'tec_do', vendas:592.50, itens:13, pedidos:12, cliques:1, comissao:8.89, roi:66.7},
+      {nome:'Francielle Biff Ferr…', user:'franciellebiff', vendas:304.26, itens:2, pedidos:2, cliques:6, comissao:4.56, roi:66.7},
+      {nome:'Ofertas do dia', user:'nogsilva', vendas:293.79, itens:3, pedidos:1, cliques:0, comissao:4.41, roi:66.7},
+      {nome:'Achadinhos do Lin…', user:'lincolnsoaresleal', vendas:280.90, itens:1, pedidos:1, cliques:0, comissao:4.21, roi:66.7},
+      {nome:'Byclaushop', user:'byclaushop', vendas:280.90, itens:1, pedidos:1, cliques:13, comissao:14.05, roi:20},
+    ] },
+  { nome:'RFF', user:'rafarfun',
+    vendas:10000, vendasVar:16.33, itens:183, itensVar:-1.61, pedidos:174, pedidosVar:-1.14,
+    cliques:3400, cliquesVar:12.76, comissao:293.20, comissaoVar:13.22, roi:34, roiVar:2.74,
+    compradores:172, compradoresVar:-2.27, novos:165, novosVar:-1.20,
+    canais:[{nome:'Outros',pct:38.5},{nome:'Shopee Video',pct:28.7},{nome:'Instagram',pct:21.3},{nome:'Facebook',pct:4.6},{nome:'YouTube',pct:4.0},{nome:'Shopee Live',pct:2.9}],
+    top:[
+      {nome:'Edilaine Franco de…', user:'edilainefj', vendas:855.25, itens:15, pedidos:15, cliques:525, comissao:42.76, roi:20},
+      {nome:'Opera BR', user:'operabr', vendas:550.94, itens:11, pedidos:11, cliques:0, comissao:8.26, roi:66.7},
+      {nome:'Ramon', user:'ramonleonardo609', vendas:440.17, itens:5, pedidos:4, cliques:8, comissao:22.01, roi:20},
+      {nome:'Natália', user:'nataliaandrad3', vendas:437.55, itens:10, pedidos:10, cliques:265, comissao:21.88, roi:20},
+      {nome:'Tec-do', user:'tec_do', vendas:306.75, itens:7, pedidos:7, cliques:3, comissao:4.60, roi:66.7},
+    ] },
+];
+// Fontes de tráfego (relatório da loja Ranum, julho/2026, pedidos pagos) — atribuição diferente, único dado histórico que temos
+const AF_FONTES_JUL = {
+  fontes: [
+    {nome:'Anúncios',        valor:57059.00},
+    {nome:'Cards do produto',valor:58261.30},
+    {nome:'Afiliados',       valor:3314.20},
+    {nome:'Lives',           valor:0},
+    {nome:'Vídeos',          valor:0},
+  ],
+  vendasPagasLoja: 61575.50,
+};
+
+/* ================= Afiliados consolidado (soma das 3 lojas com Central de Afiliados) — pedido do Bruno em 01/09 ================= */
+(function(){
+  const totVendas = AF_LOJAS.reduce((a,af)=>a+af.vendas,0);
+  const totPedidos = AF_LOJAS.reduce((a,af)=>a+af.pedidos,0);
+  const totItens = AF_LOJAS.reduce((a,af)=>a+af.itens,0);
+  const totComissao = AF_LOJAS.reduce((a,af)=>a+af.comissao,0);
+  const totCompradores = AF_LOJAS.reduce((a,af)=>a+af.compradores,0);
+  const totNovos = AF_LOJAS.reduce((a,af)=>a+af.novos,0);
+
+  const tilesHtml = [
+    {l:'Vendas por afiliados (3 lojas)', v:fmtR$(totVendas), d:`${fmtPct(totComissao/totVendas*100)} de comissão média`},
+    {l:'Pedidos', v:totPedidos.toLocaleString('pt-BR'), d:`${totItens.toLocaleString('pt-BR')} itens`},
+    {l:'Compradores', v:totCompradores.toLocaleString('pt-BR'), d:'via programa de afiliados'},
+    {l:'Novos compradores', v:totNovos.toLocaleString('pt-BR'), d:`${fmtPct(totNovos/totCompradores*100)} dos compradores`},
+  ].map(t=>`<div class="card tile"><div class="label">${t.l}</div><div class="value num">${t.v}</div><div class="delta">${t.d}</div></div>`).join('');
+  document.getElementById('af-consolidado-tiles').innerHTML = tilesHtml;
+
+  // Top 5 consolidado: agrupa por afiliado (username) o top-5 já apurado de cada loja e re-ordena.
+  // Limitação: só temos o top-5 de CADA loja, não a lista completa — um afiliado forte em 2 lojas mas fora do
+  // top-5 de uma delas pode ficar sub-contado aqui. Ainda assim é a melhor visão consolidada com o dado que temos.
+  const porUser = {};
+  AF_LOJAS.forEach(af=>{
+    af.top.forEach(t=>{
+      if(!porUser[t.user]) porUser[t.user] = {nome:t.nome, user:t.user, vendas:0, pedidos:0, itens:0, comissao:0, lojas:[]};
+      const p = porUser[t.user];
+      p.vendas+=t.vendas; p.pedidos+=t.pedidos; p.itens+=t.itens; p.comissao+=t.comissao; p.lojas.push(af.nome);
+    });
+  });
+  const top5 = Object.values(porUser).sort((a,b)=>b.vendas-a.vendas).slice(0,5);
+  let tab = `<thead><tr><th>Afiliado</th><th>Loja(s)</th><th>Vendas</th><th>Pedidos</th><th>Itens</th><th>Comissão</th><th>% do consolidado</th></tr></thead><tbody>`;
+  top5.forEach((t,i)=>{
+    tab += `<tr><td>${i+1}. ${t.nome} <span style="font-weight:400;color:var(--ink-3)">${t.user}</span></td>
+      <td>${t.lojas.join(', ')}</td>
+      <td class="num">${fmtR$c(t.vendas)}</td><td class="num">${t.pedidos}</td><td class="num">${t.itens}</td>
+      <td class="num">${fmtR$c(t.comissao)}</td><td class="num">${fmtPct(t.vendas/totVendas*100)}</td></tr>`;
+  });
+  tab += `</tbody>`;
+  document.getElementById('af-consolidado-top').innerHTML = tab;
+
+  // Canais consolidados: cada loja só tem % (não valor); converte pct/100 × vendas da loja para valor, soma e recalcula %.
+  const canaisMap = {};
+  AF_LOJAS.forEach(af=>{
+    af.canais.forEach(c=>{ canaisMap[c.nome] = (canaisMap[c.nome]||0) + c.pct/100*af.vendas; });
+  });
+  const canaisArr = Object.entries(canaisMap).map(([nome,valor])=>({nome,valor})).sort((a,b)=>b.valor-a.valor);
+  const totCanais = canaisArr.reduce((a,c)=>a+c.valor,0);
+  const maxC = Math.max(...canaisArr.map(c=>c.valor));
+  document.getElementById('af-canais-consolidado').innerHTML = canaisArr.map(c=>`
+    <div class="share-row"><span>${c.nome}</span>
+      <div><div class="bar" style="width:${Math.max(c.valor/maxC*100,1)}%"></div></div>
+      <span class="val num">${fmtPct(c.valor/totCanais*100)}</span></div>`).join('')
+    + `<div class="mei-note" style="margin-top:10px">Estimado aplicando o % de cada loja sobre a venda por afiliados da própria loja, depois somando as 3 — a Shopee não consolida lojas nesse relatório, então não é um número bruto único do painel.</div>`;
+})();
+
+(function(){
+  const d = v => { const cls = v>=0 ? 'up':'down'; return `<span class="${cls}">${v>=0?'▲':'▼'} ${fmtPct(Math.abs(v))}</span> vs. últimos 30 dias`; };
+
+  document.getElementById('af-lojas').innerHTML = AF_LOJAS.map(af=>{
+    const tiles = [
+      {l:'Vendas por afiliados', v:fmtR$(af.vendas), d:d(af.vendasVar)},
+      {l:'Comissão estimada', v:fmtR$c(af.comissao), d:`${fmtPct(af.comissao/af.vendas*100)} das vendas · ${d(af.comissaoVar)}`},
+      {l:'Pedidos', v:af.pedidos.toLocaleString('pt-BR'), d:`${af.itens} itens · ${d(af.pedidosVar)}`},
+      {l:'Novos compradores', v:af.novos.toLocaleString('pt-BR'), d:`${fmtPct(af.novos/af.compradores*100)} dos compradores · ${d(af.novosVar)}`},
+    ].map(t=>`<div class="card tile"><div class="label">${t.l}</div><div class="value num">${t.v}</div><div class="delta">${t.d}</div></div>`).join('');
+
+    const somaTop = af.top.reduce((a,t)=>a+t.vendas,0);
+    let tab = `<thead><tr><th>Afiliado</th><th>Vendas</th><th>Pedidos</th><th>Itens</th><th>Cliques</th><th>Comissão</th><th>Comissão %</th></tr></thead><tbody>`;
+    af.top.forEach((t,i)=>{
+      tab += `<tr><td>${i+1}. ${t.nome} <span style="font-weight:400;color:var(--ink-3)">${t.user}</span></td>
+        <td class="num">${fmtR$c(t.vendas)}</td><td class="num">${t.pedidos}</td><td class="num">${t.itens}</td>
+        <td class="num">${t.cliques.toLocaleString('pt-BR')}</td><td class="num">${fmtR$c(t.comissao)}</td>
+        <td class="num">${fmtPct(t.comissao/t.vendas*100)}</td></tr>`;
+    });
+    tab += `<tr class="total-row"><td>Top 5 (de ${fmtR$(af.vendas)} no mês)</td><td class="num">${fmtR$c(somaTop)}</td>
+      <td class="num">${af.top.reduce((a,t)=>a+t.pedidos,0)}</td><td class="num">${af.top.reduce((a,t)=>a+t.itens,0)}</td>
+      <td class="num">${af.top.reduce((a,t)=>a+t.cliques,0).toLocaleString('pt-BR')}</td>
+      <td class="num">${fmtR$c(af.top.reduce((a,t)=>a+t.comissao,0))}</td>
+      <td class="num">${fmtPct(somaTop/af.vendas*100)} do total</td></tr></tbody>`;
+
+    return `<div class="card" style="margin-top:14px; padding:20px 22px 22px;">
+      <div class="loja-head"><span class="loja-nome">${af.nome} <span style="font-weight:400;color:var(--ink-3);font-size:12.5px">(${af.user})</span></span>
+        <span class="loja-share">${fmtPct(af.comissao/af.vendas*100)} de comissão sobre as vendas atribuídas</span></div>
+      <div class="tiles" style="margin-top:12px;">${tiles}</div>
+      <div style="overflow-x:auto; margin-top:14px;"><table class="farol" style="width:100%">${tab}</table></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('af-canais').innerHTML = AF_LOJAS.map(af=>{
+    const maxC = Math.max(...af.canais.map(c=>c.pct));
+    const rows2 = af.canais.map(c=>`
+      <div class="share-row"><span>${c.nome}</span>
+        <div><div class="bar" style="width:${Math.max(c.pct/maxC*100,1)}%"></div></div>
+        <span class="val num">${fmtPct(c.pct)}</span></div>`).join('');
+    return `<div class="card loja-card">
+      <div class="loja-head"><span class="loja-nome">${af.nome}</span></div>
+      <div style="margin-top:8px;">${rows2}</div>
+    </div>`;
+  }).join('');
+
+  const maxF = Math.max(...AF_FONTES_JUL.fontes.map(f=>f.valor));
+  document.getElementById('af-fontes').innerHTML = AF_FONTES_JUL.fontes.map(f=>`
+    <div class="share-row"><span>${f.nome}</span>
+      <div><div class="bar" style="width:${Math.max(f.valor/maxF*100,0.5)}%; background:${f.nome==='Afiliados'?'var(--serie-25)':'var(--serie-26)'}"></div></div>
+      <span class="val num">${fmtR$(f.valor)} · ${fmtPct(f.valor/AF_FONTES_JUL.vendasPagasLoja*100)}</span></div>`).join('')
+    + `<div class="mei-note" style="margin-top:10px">Anúncios e cards do produto se sobrepõem (o mesmo pedido conta nas duas origens), por isso somam mais que 100%. Base: R$ ${AF_FONTES_JUL.vendasPagasLoja.toLocaleString('pt-BR',{minimumFractionDigits:2})} de vendas pagas da Ranum Shopee em julho.</div>`;
+})();
+</script>
+<script>
+/* ================= ABA LUCRO REAL (julho/2026) ================= */
+const DRE = [
+  {g:'Receita'},
+  {item:'Faturamento (vendas válidas)', v:264852.35, st:'ok',
+   fonte:'Vendas_loja_performance + Performance_das_Vendas (duas fontes conferem)'},
+  {item:'(−) Cancelamentos', v:-10342.44, st:'ok', fonte:'256 pedidos — não estavam na planilha antiga'},
+  {item:'(−) Devoluções', v:-1125.30, st:'parcial', fonte:'só Ranum Shopee; faltam as outras 4 contas'},
+  {g:'Custos variáveis'},
+  {item:'(−) CMV — custo dos produtos', v:null, st:'falta',
+   fonte:'depende do De-Para que te enviei (80 anúncios = 73% do faturamento)'},
+  {item:'(−) Taxas dos marketplaces', v:null, st:'falta',
+   fonte:'faltam as tarifas por venda (comissão + frete) — ver pendência 2'},
+  {item:'(−) Tarifas Mercado Livre faturadas', v:-721.86, st:'ok',
+   fonte:'Relatorio_Faturamento_MercadoLivre — 168 lançamentos de julho'},
+  {item:'(−) ADS', v:-4623.06, st:'parcial',
+   fonte:'extrato real da Ranum Shopee; faltam Smith, RFF, Zelia, Flavia e ADS de Meli/Amazon'},
+  {g:'Custos fixos'},
+  {item:'(−) Folha (Leo + Arthur + Flávia)', v:-9498.09, st:'ok', fonte:'planilha consolidada, aba Funcionário'},
+  {item:'(−) Impostos (7% sobre faturamento)', v:-18539.66, st:'premissa',
+   fonte:'alíquota efetiva das suas premissas: DAS 5.205,50 ÷ Fat. 77.090,28 = 6,75%, arredondado p/ 7%'},
+  {g:'Resultado'},
+];
+
+(function(){
+  const ST = {
+    ok:      {cls:'ok',   txt:'confirmado'},
+    parcial: {cls:'warn', txt:'parcial'},
+    premissa:{cls:'warn', txt:'premissa'},
+    falta:   {cls:'crit', txt:'falta dado'},
+  };
+  let h = `<thead><tr><th>Linha do DRE</th><th>Julho/2026</th><th>% do fat.</th><th style="text-align:left">Status</th><th style="text-align:left">Origem do dado</th></tr></thead><tbody>`;
+  let parcial = 0;
+  DRE.forEach(l=>{
+    if(l.g){ h += `<tr><td colspan="5" style="background:var(--bg); font-size:11.5px; letter-spacing:.06em;
+      text-transform:uppercase; color:var(--ink-3); font-weight:600;">${l.g}</td></tr>`; return; }
+    if(typeof l.v === 'number') parcial += l.v;
+    const s = ST[l.st];
+    const val = l.v===null ? '<span style="color:var(--crit)">a apurar</span>' : fmtR$(l.v);
+    const pct = l.v===null ? '—' : fmtPct(Math.abs(l.v)/264852.35*100);
+    h += `<tr><td style="font-weight:${l.item.startsWith('(−)')?'400':'600'}">${l.item}</td>
+      <td class="num">${val}</td><td class="num" style="color:var(--ink-3)">${pct}</td>
+      <td style="text-align:left"><span class="cell" style="justify-content:flex-start">${dot(s.cls)}${s.txt}</span></td>
+      <td style="text-align:left; white-space:normal; color:var(--ink-2); font-size:12.5px">${l.fonte}</td></tr>`;
+  });
+  h += `<tr class="total-row"><td>Resultado com o que já está apurado</td><td class="num">${fmtR$(parcial)}</td>
+    <td class="num">${fmtPct(parcial/264852.35*100)}</td>
+    <td colspan="2" style="text-align:left; white-space:normal; color:var(--crit); font-size:12.5px">
+    <b>Não é o lucro real</b> — ainda faltam CMV e taxas dos marketplaces, que são os dois maiores custos. O número só cai daqui.</td></tr>`;
+  h += `<tr><td style="font-weight:600">Lucro estimado da planilha antiga</td><td class="num">${fmtR$(27456.43)}</td>
+    <td class="num">10,3%</td><td colspan="2" style="text-align:left; white-space:normal; color:var(--ink-2); font-size:12.5px">
+    Fórmula 15% do faturamento + R$ 0,50/item − ADS − devoluções − prejuízo. É a referência que vamos substituir.</td></tr></tbody>`;
+  document.getElementById('dre').innerHTML = h;
+
+  document.getElementById('falta').innerHTML = [
+    `<b>De-Para de custos confirmado</b> — te enviei a planilha com 80 anúncios (73% do faturamento) e sugestões prontas. Só 4% casaram sozinhos porque o título do anúncio não bate com o nome interno do custo.`,
+    `<b>Relatório de tarifas por venda do Mercado Livre.</b> Os arquivos que você mandou são de faturas avulsas — somam R$ 933 pagos em julho, quase tudo publicidade. As comissões e fretes de verdade (o print mostra 44,7% do faturamento!) são descontados por venda e estão no relatório de <b>Liberações / Vendas</b> do Mercado Pago, não neste.`,
+    `<b>Extratos de ADS das outras contas</b> — hoje só temos o da Ranum Shopee (aquele CSV do histórico de anúncios). Precisa do mesmo para Smith, RFF, Zelia e Flavia, mais os de Meli e Amazon.`,
+    `<b>shopeeshopstats das outras contas</b> — para devoluções e afiliados completos.`,
+  ].map(t=>`<li>${t}</li>`).join('');
+
+  document.getElementById('premissas').innerHTML = [
+    ['warn','Imposto: 7% sobre o faturamento (sua premissa)'],
+    ['ok','Faturamento: vendas válidas, não vendas brutas'],
+    ['warn','Custo de produção inclui matéria-prima, salário, frete, ADM, energia e embalagem'],
+    ['warn','Comissões e impostos calculados à parte, por canal'],
+  ].map(([s,t])=>`<li>${dot(s)}${t}</li>`).join('');
+})();
+</script>
+
+<script>
+/* ================= ATUALIZAR GITHUB =================
+   Usa a API de conteúdo do GitHub (PUT /repos/{dono}/{repo}/contents/{arquivo}) para substituir o index.html.
+   - O token é digitado pelo usuário e só vai para api.github.com. Nunca fica escrito neste arquivo.
+   - Sem "lembrar", o token fica só nesta aba (sessionStorage) e some ao fechar.
+   - Antes de enviar, confere se o arquivo escolhido é mesmo um Farol (evita subir o arquivo errado por engano). */
+(function(){
+  const $ = id => document.getElementById(id);
+  const dlg = $('gh-dlg');
+  const API = 'https://api.github.com';
+  const CFG_KEY = 'farol-gh-cfg', TOK_KEY = 'farol-gh-token';
+  let arquivo = null, conteudoB64 = null;
+
+  const store = {
+    get(k, s){ try{ return (s||localStorage).getItem(k); }catch(e){ return null; } },
+    set(k, v, s){ try{ (s||localStorage).setItem(k, v); }catch(e){} },
+    del(k){ try{ localStorage.removeItem(k); sessionStorage.removeItem(k); }catch(e){} },
+  };
+
+  function msg(tipo, html){ const m=$('gh-msg'); m.className='gh-msg '+tipo; m.innerHTML=html; }
+  function limpaMsg(){ const m=$('gh-msg'); m.className='gh-msg'; m.innerHTML=''; }
+
+  // Pré-preenche dono/repositório quando o site já está no GitHub Pages (ex.: dono.github.io/repo/)
+  function detectaPages(){
+    const h = location.hostname || '';
+    if(!h.endsWith('.github.io')) return {};
+    const owner = h.replace('.github.io','');
+    const seg = location.pathname.split('/').filter(Boolean)[0];
+    const repo = (seg && !/\.html?$/i.test(seg)) ? seg : owner + '.github.io';
+    return {owner, repo};
+  }
+
+  function carregaCfg(){
+    let cfg = {};
+    try{ cfg = JSON.parse(store.get(CFG_KEY) || '{}') || {}; }catch(e){ cfg = {}; }
+    const det = detectaPages();
+    $('gh-owner').value = cfg.owner || det.owner || '';
+    $('gh-repo').value = cfg.repo || det.repo || '';
+    $('gh-branch').value = cfg.branch || 'main';
+    $('gh-path').value = cfg.path || 'index.html';
+    const tokLocal = store.get(TOK_KEY), tokSess = store.get(TOK_KEY, window.sessionStorage);
+    $('gh-token').value = tokLocal || tokSess || '';
+    $('gh-remember').checked = !!tokLocal;
+  }
+  function salvaCfg(){
+    const cfg = { owner:$('gh-owner').value.trim(), repo:$('gh-repo').value.trim(),
+      branch:$('gh-branch').value.trim()||'main', path:$('gh-path').value.trim().replace(/^\/+/,'')||'index.html' };
+    store.set(CFG_KEY, JSON.stringify(cfg));
+    const tok = $('gh-token').value.trim();
+    store.del(TOK_KEY);
+    if(tok){ if($('gh-remember').checked) store.set(TOK_KEY, tok); else store.set(TOK_KEY, tok, window.sessionStorage); }
+    return {...cfg, token:tok};
+  }
+
+  function headers(token){
+    return { 'Accept':'application/vnd.github+json', 'Authorization':'Bearer '+token, 'X-GitHub-Api-Version':'2022-11-28' };
+  }
+  function urlArquivo(c){
+    const p = c.path.split('/').map(encodeURIComponent).join('/');
+    return `${API}/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}/contents/${p}`;
+  }
+  function explicaErro(status, corpo){
+    const txt = (corpo && corpo.message) ? corpo.message : '';
+    if(status===401) return 'Token inválido ou expirado. Gere um novo em GitHub → Settings → Developer settings → Fine-grained tokens.';
+    if(status===403) return 'O token não tem permissão de escrita neste repositório. Confira se ele tem <b>Contents: Read and write</b> e se o repositório está na lista dele.' + (txt?` <br><small>(${txt})</small>`:'');
+    if(status===404) return 'Repositório, branch ou arquivo não encontrado, ou o token não enxerga esse repositório. Confira usuário, nome do repositório e branch.';
+    if(status===409) return 'Conflito: o arquivo mudou no GitHub enquanto você enviava. Clique em "Enviar" de novo.';
+    if(status===422) return 'O GitHub recusou o envio (dados inválidos).' + (txt?` <br><small>(${txt})</small>`:'');
+    return `Erro ${status} do GitHub.` + (txt?` <br><small>(${txt})</small>`:'');
+  }
+  function validaCampos(c, precisaArquivo){
+    if(!c.owner || !c.repo) return 'Preencha usuário e repositório.';
+    if(!c.token) return 'Cole o token do GitHub.';
+    if(precisaArquivo && !conteudoB64) return 'Escolha o arquivo index.html do mês.';
+    return null;
+  }
+
+  async function testar(){
+    limpaMsg();
+    const c = salvaCfg(); const e = validaCampos(c, false);
+    if(e){ msg('err', e); return; }
+    msg('info','Testando conexão…');
+    try{
+      const r = await fetch(`${API}/repos/${encodeURIComponent(c.owner)}/${encodeURIComponent(c.repo)}`, {headers:headers(c.token)});
+      const j = await r.json().catch(()=>({}));
+      if(!r.ok){ msg('err', explicaErro(r.status, j)); return; }
+      const podeEscrever = j.permissions ? (j.permissions.push || j.permissions.admin) : undefined;
+      msg(podeEscrever===false ? 'err' : 'ok',
+        podeEscrever===false
+          ? `Conectou em <b>${j.full_name}</b>, mas o token <b>não tem permissão de escrita</b>.`
+          : `Conexão OK com <b>${j.full_name}</b>${j.private?' (privado)':' (público)'}. Pode enviar o arquivo.`);
+    }catch(err){ msg('err','Não consegui falar com o GitHub (sem internet ou bloqueado por este navegador/rede).'); }
+  }
+
+  function leArquivo(f){
+    limpaMsg(); arquivo = null; conteudoB64 = null; $('gh-send').disabled = true;
+    if(!f) return;
+    if(!/\.html?$/i.test(f.name)){ msg('err','Escolha um arquivo .html.'); return; }
+    if(f.size > 5*1024*1024){ msg('err','Arquivo grande demais para um Farol (mais de 5 MB). Confira se é o arquivo certo.'); return; }
+    const leitorTxt = new FileReader();
+    leitorTxt.onload = () => {
+      const txt = String(leitorTxt.result || '');
+      if(!/Farol das Lojas/.test(txt) || !/const D2026\s*=/.test(txt)){
+        msg('err','Esse arquivo não parece ser o Farol das Lojas (não encontrei o título nem os dados do farol). Envio bloqueado para não sobrescrever o site com o arquivo errado.');
+        $('gh-file-lbl').innerHTML = `<b>${f.name}</b> · recusado`;
+        return;
+      }
+      let meses = '';
+      try{ const bloco = txt.match(/const D2026\s*=\s*\[([\s\S]*?)\];/)[1]; meses = (bloco.match(/\[/g)||[]).length; }catch(e){}
+      const leitorB64 = new FileReader();
+      leitorB64.onload = () => {
+        conteudoB64 = String(leitorB64.result).split(',')[1] || '';
+        arquivo = f;
+        $('gh-file-lbl').innerHTML = `<b>${f.name}</b> · ${(f.size/1024).toLocaleString('pt-BR',{maximumFractionDigits:0})} KB${meses?` · ${meses} meses de dados`:''} · pronto para enviar`;
+        $('gh-send').disabled = false;
+      };
+      leitorB64.readAsDataURL(f);
+    };
+    leitorTxt.readAsText(f, 'utf-8');
+  }
+
+  async function enviar(){
+    limpaMsg();
+    const c = salvaCfg(); const e = validaCampos(c, true);
+    if(e){ msg('err', e); return; }
+    const alvo = `${c.owner}/${c.repo} · ${c.branch} · ${c.path}`;
+    if(!window.confirm(`Substituir ${c.path} em ${c.owner}/${c.repo} (branch ${c.branch}) pelo arquivo "${arquivo.name}"?\n\nA versão anterior continua no histórico do GitHub, se precisar voltar.`)) return;
+    $('gh-send').disabled = true; msg('info', `Enviando para <b>${alvo}</b>…`);
+    try{
+      const url = urlArquivo(c);
+      // 1) pega o "sha" da versão atual (o GitHub exige para substituir um arquivo existente)
+      let sha;
+      const g = await fetch(`${url}?ref=${encodeURIComponent(c.branch)}`, {headers:headers(c.token), cache:'no-store'});
+      if(g.ok){ sha = (await g.json()).sha; }
+      else if(g.status!==404){ const j=await g.json().catch(()=>({})); msg('err', explicaErro(g.status, j)); $('gh-send').disabled=false; return; }
+      // 2) grava a nova versão (commit)
+      const hoje = new Date().toLocaleDateString('pt-BR');
+      const body = { message:`Farol: atualização de ${hoje} (${arquivo.name})`, content:conteudoB64, branch:c.branch };
+      if(sha) body.sha = sha;
+      const p = await fetch(url, {method:'PUT', headers:{...headers(c.token),'Content-Type':'application/json'}, body:JSON.stringify(body)});
+      const j = await p.json().catch(()=>({}));
+      if(!p.ok){ msg('err', explicaErro(p.status, j)); $('gh-send').disabled=false; return; }
+      const commit = j.commit && j.commit.html_url;
+      const pages = c.repo.toLowerCase()===`${c.owner.toLowerCase()}.github.io` ? `https://${c.owner}.github.io/` : `https://${c.owner}.github.io/${c.repo}/`;
+      msg('ok', `✓ Enviado! ${commit?`<a href="${commit}" target="_blank" rel="noopener">Ver o commit</a> · `:''}<a href="https://github.com/${c.owner}/${c.repo}/actions" target="_blank" rel="noopener">acompanhar a publicação</a>.<br>
+        O site <a href="${pages}" target="_blank" rel="noopener">${pages.replace('https://','')}</a> atualiza em 1–2 minutos. Depois recarregue a página (Ctrl+F5 / ⌘+Shift+R) para ver o mês novo.`);
+    }catch(err){
+      msg('err','Não consegui falar com o GitHub (sem internet ou bloqueado por este navegador/rede).');
+      $('gh-send').disabled = false;
+    }
+  }
+
+  function abrir(){
+    carregaCfg(); limpaMsg();
+    if(typeof dlg.showModal === 'function'){ dlg.setAttribute('data-modal',''); dlg.showModal(); } else { dlg.setAttribute('open',''); }
+  }
+  function fechar(){ if(typeof dlg.close === 'function') dlg.close(); else dlg.removeAttribute('open'); }
+
+  $('gh-open').addEventListener('click', abrir);
+  $('gh-close').addEventListener('click', fechar);
+  $('gh-test').addEventListener('click', testar);
+  $('gh-send').addEventListener('click', enviar);
+  $('gh-file').addEventListener('change', e => leArquivo(e.target.files[0]));
+  $('gh-remember').addEventListener('change', () => { if(!$('gh-remember').checked) store.del(TOK_KEY); });
+  const drop = $('gh-drop');
+  ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('drop', e => { const f = e.dataTransfer && e.dataTransfer.files[0]; if(f) leArquivo(f); });
+
+  window.__farolGH = { leArquivo, enviar, testar, abrir, detectaPages }; // usado só para testes
+})();
+</script>
+
+</body></html>
